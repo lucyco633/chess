@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -18,6 +19,19 @@ public class ChessPiece {
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 
     /**
@@ -54,97 +68,50 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> valid_moves = new Collection<ChessMove>() {
-            @Override
-            public int size() {
-                return 0;
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @Override
-            public Iterator<ChessMove> iterator() {
-                return null;
-            }
-
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @Override
-            public <T> T[] toArray(T[] a) {
-                return null;
-            }
-
-            @Override
-            public boolean add(ChessMove chessMove) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(Collection<? extends ChessMove> c) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(Collection<?> c) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-        };
+        Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
         switch (type) {
             case KING:
-                if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn())) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), type));
+                //add while statement so that stop before 8?
+                if ((myPosition.getRow() + 1) < 8) {
+                    //null or other team
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn())) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn()), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), type));
+                if (((myPosition.getColumn() + 1) < 8) && ((myPosition.getRow() + 1) < 8)) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), type));
+                if ((myPosition.getColumn() + 1) < 8) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() + 1), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), type));
+                if (((myPosition.getColumn() + 1) < 8) && ((myPosition.getRow() - 1) >= 0)) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), type));
+                if ((myPosition.getRow() - 1) >= 0){
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) == null){
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn()), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), type));
+                if (((myPosition.getColumn() - 1) >= 0) && ((myPosition.getRow() - 1) >= 0)) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), type));
+                if ((myPosition.getColumn() - 1) >= 0) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow(), myPosition.getColumn() - 1), type));
+                    }
                 }
-                if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) == null){
-                    valid_moves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), type));
+                if (((myPosition.getColumn() - 1) >= 0) && ((myPosition.getRow() + 1) < 8)) {
+                    if (board.getPiece(new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1)) == null) {
+                        validMoves.add(new ChessMove(myPosition, new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1), type));
+                    }
                 }
             case QUEEN:
                 break;
@@ -153,10 +120,13 @@ public class ChessPiece {
             case KNIGHT:
                 break;
             case ROOK:
+                //while the next spot to the side is null...
+                //if next spot has enemy player, can move, else not
+                //same for up and down
                 break;
             case PAWN:
                 break;
         }
-        return valid_moves;
+        return validMoves;
     }
 }
