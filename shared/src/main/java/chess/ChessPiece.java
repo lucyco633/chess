@@ -175,6 +175,142 @@ public class ChessPiece {
     }
 
 
+    public void validPawnMove(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> valid){
+        if (board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK) {
+            if (myPosition.getRow() == 7) {
+                ChessMove okayMoveDownTwo = checkMove(board, myPosition, -2, 0, null);
+                if (okayMoveDownTwo != null) {
+                    valid.add(okayMoveDownTwo);
+                }
+                ChessMove okayMoveDownOne = checkMove(board, myPosition, -1, 0, null);
+                if (okayMoveDownOne != null) {
+                    valid.add(okayMoveDownOne);
+                }
+            }
+            if (((myPosition.getColumn() - 1) > 0) && (myPosition.getRow() - 1) > 0) {
+                ChessPosition attackLeft = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() - 1);
+                if (board.getPiece(attackLeft) != null && board.getPiece(attackLeft).pieceColor == ChessGame.TeamColor.WHITE) {
+                    if (attackLeft.getRow() == 8){
+                        ChessMove okayPromoteQueen = checkMove(board, myPosition, -1, -1, PieceType.QUEEN);
+                        ChessMove okayPromoteBishop = checkMove(board, myPosition, -1, -1, PieceType.BISHOP);
+                        ChessMove okayPromoteKnight = checkMove(board, myPosition, -1, -1, PieceType.KNIGHT);
+                        ChessMove okayPromoteRook = checkMove(board, myPosition, -1, -1, PieceType.ROOK);
+                        valid.add(okayPromoteQueen);
+                        valid.add(okayPromoteBishop);
+                        valid.add(okayPromoteKnight);
+                        valid.add(okayPromoteRook);
+                    }
+                    else {
+                        ChessMove okayAttack = checkMove(board, myPosition, -1, -1, null);
+                        valid.add(okayAttack);
+                    }
+                }
+            }
+            if (((myPosition.getColumn() + 1) <= 8) && (myPosition.getRow() - 1) > 0) {
+                ChessPosition attackRight = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
+                if (board.getPiece(attackRight) != null && board.getPiece(attackRight).pieceColor == ChessGame.TeamColor.WHITE) {
+                    if (attackRight.getRow() == 8){
+                        ChessMove okayPromoteQueen = checkMove(board, myPosition, -1, 1, PieceType.QUEEN);
+                        ChessMove okayPromoteBishop = checkMove(board, myPosition, -1, 1, PieceType.BISHOP);
+                        ChessMove okayPromoteKnight = checkMove(board, myPosition, -1, 1, PieceType.KNIGHT);
+                        ChessMove okayPromoteRook = checkMove(board, myPosition, -1, 1, PieceType.ROOK);
+                        valid.add(okayPromoteQueen);
+                        valid.add(okayPromoteBishop);
+                        valid.add(okayPromoteKnight);
+                        valid.add(okayPromoteRook);
+                    }
+                    else {
+                        ChessMove okayAttack = checkMove(board, myPosition, 1, 1, null);
+                        valid.add(okayAttack);
+                    }
+                }
+            }
+            if (((myPosition.getRow() - 1) == 1) && board.getPiece(new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn())) != null) {
+                ChessMove okayPromoteQueen = checkMove(board, myPosition, -1, 0, PieceType.QUEEN);
+                ChessMove okayPromoteBishop = checkMove(board, myPosition, -1, 0, PieceType.BISHOP);
+                ChessMove okayPromoteKnight = checkMove(board, myPosition, -1, 0, PieceType.KNIGHT);
+                ChessMove okayPromoteRook = checkMove(board, myPosition, -1, 0, PieceType.ROOK);
+                valid.add(okayPromoteQueen);
+                valid.add(okayPromoteBishop);
+                valid.add(okayPromoteKnight);
+                valid.add(okayPromoteRook);
+            }
+            else {
+                if ((myPosition.getColumn() > 0 && myPosition.getColumn() <=8) && ((myPosition.getRow() - 1) > 0)){
+                    ChessMove okayMove = checkMove(board, myPosition, -1, 0, null);
+                    valid.add(okayMove);
+                }
+            }
+        }
+        if (board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.WHITE) {
+            if (myPosition.getRow() == 2) {
+                ChessMove okayMoveUpTwo = checkMove(board, myPosition, 2, 0, null);
+                if (okayMoveUpTwo != null) {
+                    valid.add(okayMoveUpTwo);
+                }
+                ChessMove okayMoveUpOne = checkMove(board, myPosition, 1, 0, null);
+                if (okayMoveUpOne != null) {
+                    valid.add(okayMoveUpOne);
+                }
+            }
+            if (((myPosition.getColumn() - 1) > 0) && (myPosition.getRow() + 1) <= 8) {
+                ChessPosition attackLeft = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() - 1);
+                if (board.getPiece(attackLeft) != null && board.getPiece(attackLeft).pieceColor == ChessGame.TeamColor.BLACK) {
+                    if (attackLeft.getRow() == 8){
+                        ChessMove okayPromoteQueen = checkMove(board, myPosition, 1, -1, PieceType.QUEEN);
+                        ChessMove okayPromoteBishop = checkMove(board, myPosition, 1, -1, PieceType.BISHOP);
+                        ChessMove okayPromoteKnight = checkMove(board, myPosition, 1, -1, PieceType.KNIGHT);
+                        ChessMove okayPromoteRook = checkMove(board, myPosition, 1, -1, PieceType.ROOK);
+                        valid.add(okayPromoteQueen);
+                        valid.add(okayPromoteBishop);
+                        valid.add(okayPromoteKnight);
+                        valid.add(okayPromoteRook);
+                    }
+                    else {
+                        ChessMove okayAttack = checkMove(board, myPosition, 1, -1, null);
+                        valid.add(okayAttack);
+                    }
+                }
+            }
+            if (((myPosition.getColumn() + 1) <= 8) && (myPosition.getRow() + 1) <= 8) {
+                ChessPosition attackRight = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn() + 1);
+                if (board.getPiece(attackRight) != null && board.getPiece(attackRight).pieceColor == ChessGame.TeamColor.BLACK) {
+                    if (attackRight.getRow() == 8){
+                        ChessMove okayPromoteQueen = checkMove(board, myPosition, 1, 1, PieceType.QUEEN);
+                        ChessMove okayPromoteBishop = checkMove(board, myPosition, 1, 1, PieceType.BISHOP);
+                        ChessMove okayPromoteKnight = checkMove(board, myPosition, 1, 1, PieceType.KNIGHT);
+                        ChessMove okayPromoteRook = checkMove(board, myPosition, 1, 1, PieceType.ROOK);
+                        valid.add(okayPromoteQueen);
+                        valid.add(okayPromoteBishop);
+                        valid.add(okayPromoteKnight);
+                        valid.add(okayPromoteRook);
+                    }
+                    else {
+                        ChessMove okayAttack = checkMove(board, myPosition, 1, 1, null);
+                        valid.add(okayAttack);
+                    }
+                }
+            }
+            if ((myPosition.getRow() - 1) == 1) {
+                ChessMove okayPromoteQueen = checkMove(board, myPosition, -1, 0, PieceType.QUEEN);
+                ChessMove okayPromoteBishop = checkMove(board, myPosition, -1, 0, PieceType.BISHOP);
+                ChessMove okayPromoteKnight = checkMove(board, myPosition, -1, 0, PieceType.KNIGHT);
+                ChessMove okayPromoteRook = checkMove(board, myPosition, -1, 0, PieceType.ROOK);
+                valid.add(okayPromoteQueen);
+                valid.add(okayPromoteBishop);
+                valid.add(okayPromoteKnight);
+                valid.add(okayPromoteRook);
+            }
+            else {
+                if ((myPosition.getColumn() > 0 && myPosition.getColumn() <=8) && ((myPosition.getRow() - 1) > 0)){
+                    ChessMove okayMove = checkMove(board, myPosition, -1, 0, null);
+                    valid.add(okayMove);
+                }
+            }
+        }
+    }
+
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
