@@ -68,7 +68,7 @@ public class ChessPiece {
         return type;
     }
 
-    public ChessMove checkMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
+    public ChessMove checkMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion) {
         ChessPosition newPosition = new ChessPosition(myPosition.getRow() + vertical, myPosition.getColumn() + horizontal);
         if (board.getPiece(newPosition) == null) {
             return new ChessMove(myPosition, newPosition, promotion);
@@ -77,42 +77,49 @@ public class ChessPiece {
                 | (board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.WHITE && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)){
             return new ChessMove(myPosition, newPosition, promotion);
         }
+        else if ((board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.BLACK && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)
+                | (board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.WHITE && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.WHITE)){
+            return null;
+        }
         return null;
     }
 
 
     public void movePiece(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
         if (vertical == 1 | horizontal == 1) {
-            while (((myPosition.getRow() + vertical) < 8) && ((myPosition.getColumn() + horizontal) < 8)) {
-                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion, valid);
+            while (((myPosition.getRow() + vertical) <= 8) && ((myPosition.getColumn() + horizontal) <= 8)) {
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
                 if (vertical != 0) {
                     vertical++;
                 }
                 if (horizontal != 0) {
                     horizontal++;
                 }
-                if (okayMove == null){
-                    break;
+                if (okayMove != null){
+                    valid.add(okayMove);
+                    if (board.getPiece(okayMove.getEndPosition()) != null){
+                        break;
+                    }
                 }
                 else{
-                    valid.add(okayMove);
+                    break;
                 }
             }
         }
         if (vertical == -1 | horizontal == -1) {
             while (((myPosition.getRow() + vertical) > 0) && ((myPosition.getColumn() + horizontal) > 0)){
-                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion, valid);
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
                 if (vertical != 0){
                     vertical--;
                 }
                 if (horizontal != 0){
                     horizontal--;
                 }
-                if (okayMove == null){
-                    break;
+                if (okayMove != null){
+                    valid.add(okayMove);
                 }
                 else{
-                    valid.add(okayMove);
+                    break;
                 }
             }
         }
@@ -139,7 +146,13 @@ public class ChessPiece {
                 vert.add(1);
                 for (Integer v: vert){
                     for (Integer h: horiz){
-                        checkMove(board, myPosition, v, h, null, validMoves);
+                        if (((myPosition.getRow() + v) <= 8) && ((myPosition.getColumn() + h) <= 8) &&
+                                ((myPosition.getRow() + v) > 0) && ((myPosition.getColumn() + h) > 0)){
+                            ChessMove okayMove = checkMove(board, myPosition, v, h, null);
+                            if (okayMove != null) {
+                                validMoves.add(okayMove);
+                            }
+                        }
                     }
                 }
             case QUEEN:
