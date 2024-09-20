@@ -86,7 +86,7 @@ public class ChessPiece {
 
 
     public void movePiece(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
-        if (vertical == 1 | horizontal == 1) {
+        if ((vertical == 1 && horizontal == 1) | (vertical == 1 && horizontal == 0) | (vertical == 0 && horizontal == 1)) {
             while (((myPosition.getRow() + vertical) <= 8) && ((myPosition.getColumn() + horizontal) <= 8)) {
                 ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
                 if (vertical != 0) {
@@ -106,7 +106,7 @@ public class ChessPiece {
                 }
             }
         }
-        if (vertical == -1 | horizontal == -1) {
+        if ((vertical == -1 && horizontal == -1) | (vertical == -1 && horizontal == 0) | (vertical == 0 && horizontal == -1)) {
             while (((myPosition.getRow() + vertical) > 0) && ((myPosition.getColumn() + horizontal) > 0)){
                 ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
                 if (vertical != 0){
@@ -117,6 +117,41 @@ public class ChessPiece {
                 }
                 if (okayMove != null){
                     valid.add(okayMove);
+                    if (board.getPiece(okayMove.getEndPosition()) != null){
+                        break;
+                    }
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        if (vertical == 1 && horizontal == -1) {
+            while (((myPosition.getRow() + vertical) <= 8) && ((myPosition.getColumn() + horizontal) > 0)) {
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
+                vertical++;
+                horizontal--;
+                if (okayMove != null){
+                    valid.add(okayMove);
+                    if (board.getPiece(okayMove.getEndPosition()) != null){
+                        break;
+                    }
+                }
+                else{
+                    break;
+                }
+            }
+        }
+        if (vertical == -1 && horizontal == 1) {
+            while (((myPosition.getRow() + vertical) > 0) && ((myPosition.getColumn() + horizontal) <= 8)) {
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
+                vertical--;
+                horizontal++;
+                if (okayMove != null){
+                    valid.add(okayMove);
+                    if (board.getPiece(okayMove.getEndPosition()) != null){
+                        break;
+                    }
                 }
                 else{
                     break;
@@ -158,7 +193,10 @@ public class ChessPiece {
             case QUEEN:
                 break;
             case BISHOP:
-                break;
+                movePiece(board, myPosition, 1, 1, null, validMoves);
+                movePiece(board, myPosition, -1, 1, null, validMoves);
+                movePiece(board, myPosition, 1, -1, null, validMoves);
+                movePiece(board, myPosition, -1, -1, null, validMoves);
             case KNIGHT:
                 break;
             case ROOK:
