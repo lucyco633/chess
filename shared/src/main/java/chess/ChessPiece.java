@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -85,7 +84,7 @@ public class ChessPiece {
     }
 
 
-    public void movePiece(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
+    public void validPieceMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
         if ((vertical == 1 && horizontal == 1) | (vertical == 1 && horizontal == 0) | (vertical == 0 && horizontal == 1)) {
             while (((myPosition.getRow() + vertical) <= 8) && ((myPosition.getColumn() + horizontal) <= 8)) {
                 ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
@@ -159,6 +158,23 @@ public class ChessPiece {
             }
         }
     }
+
+    public void validKnightMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid){
+        if ((vertical == 2 && horizontal == 1) | (vertical == 2 && horizontal == -1) |
+                (vertical == -2 && horizontal == 1) | (vertical == -2 && horizontal == -1) |
+                (vertical == 1 && horizontal == 2) | (vertical == -1 && horizontal == 2) |
+                (vertical == -1 && horizontal == -2) | (vertical == 1 && horizontal == -2)){
+            if (((myPosition.getRow() + vertical) > 0) && ((myPosition.getColumn() + horizontal) <= 8) &&
+                    ((myPosition.getRow() + vertical) <= 8) && ((myPosition.getColumn() + horizontal) > 0)){
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion);
+                if (okayMove != null) {
+                    valid.add(okayMove);
+                }
+            }
+        }
+    }
+
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -168,7 +184,7 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
-        switch (type) {
+        switch (getPieceType()) {
             case KING:
                 //add while statement so that stop before 8?
                 ArrayList<Integer> horiz = new ArrayList<Integer>();
@@ -190,30 +206,43 @@ public class ChessPiece {
                         }
                     }
                 }
+                break;
+
             case QUEEN:
-                movePiece(board, myPosition, 1, 1, null, validMoves);
-                movePiece(board, myPosition, -1, 1, null, validMoves);
-                movePiece(board, myPosition, 1, -1, null, validMoves);
-                movePiece(board, myPosition, -1, -1, null, validMoves);
-                movePiece(board, myPosition, 1, 0, null, validMoves);
-                movePiece(board, myPosition, -1, 0, null, validMoves);
-                movePiece(board, myPosition, 0, 1, null, validMoves);
-                movePiece(board, myPosition, 0, -1, null, validMoves);
+                validPieceMove(board, myPosition, 1, 1, null, validMoves);
+                validPieceMove(board, myPosition, -1, 1, null, validMoves);
+                validPieceMove(board, myPosition, 1, -1, null, validMoves);
+                validPieceMove(board, myPosition, -1, -1, null, validMoves);
+                validPieceMove(board, myPosition, 1, 0, null, validMoves);
+                validPieceMove(board, myPosition, -1, 0, null, validMoves);
+                validPieceMove(board, myPosition, 0, 1, null, validMoves);
+                validPieceMove(board, myPosition, 0, -1, null, validMoves);
+                break;
             case BISHOP:
-                movePiece(board, myPosition, 1, 1, null, validMoves);
-                movePiece(board, myPosition, -1, 1, null, validMoves);
-                movePiece(board, myPosition, 1, -1, null, validMoves);
-                movePiece(board, myPosition, -1, -1, null, validMoves);
+                validPieceMove(board, myPosition, 1, 1, null, validMoves);
+                validPieceMove(board, myPosition, -1, 1, null, validMoves);
+                validPieceMove(board, myPosition, 1, -1, null, validMoves);
+                validPieceMove(board, myPosition, -1, -1, null, validMoves);
+                break;
             case KNIGHT:
+                validKnightMove(board, myPosition, 2, 1, null, validMoves);
+                validKnightMove(board, myPosition, -2, 1, null, validMoves);
+                validKnightMove(board, myPosition, 2, -1, null, validMoves);
+                validKnightMove(board, myPosition, -2, -1, null, validMoves);
+                validKnightMove(board, myPosition, 1, 2, null, validMoves);
+                validKnightMove(board, myPosition, 1, -2, null, validMoves);
+                validKnightMove(board, myPosition, -1, 2, null, validMoves);
+                validKnightMove(board, myPosition, -1, -2, null, validMoves);
                 break;
             case ROOK:
                 //while the next spot to the side is null...
                 //if next spot has enemy player, can move, else not
                 //same for up and down
-                movePiece(board, myPosition, 1, 0, null, validMoves);
-                movePiece(board, myPosition, -1, 0, null, validMoves);
-                movePiece(board, myPosition, 0, 1, null, validMoves);
-                movePiece(board, myPosition, 0, -1, null, validMoves);
+                validPieceMove(board, myPosition, 1, 0, null, validMoves);
+                validPieceMove(board, myPosition, -1, 0, null, validMoves);
+                validPieceMove(board, myPosition, 0, 1, null, validMoves);
+                validPieceMove(board, myPosition, 0, -1, null, validMoves);
+                break;
             case PAWN:
                 break;
         }
