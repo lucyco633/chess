@@ -68,16 +68,52 @@ public class ChessPiece {
         return type;
     }
 
-    public void checkMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
-        if (((myPosition.getRow() + vertical) < 8) && ((myPosition.getRow() + vertical) >= 0) &&
-                ((myPosition.getColumn() + horizontal) < 8) && ((myPosition.getColumn() + horizontal) >= 0)){
-            ChessPosition newPosition = new ChessPosition(myPosition.getRow() + vertical, myPosition.getColumn() + horizontal);
-            if (board.getPiece(newPosition) == null) {
-                valid.add(new ChessMove(myPosition, newPosition, promotion));
+    public ChessMove checkMove(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
+        ChessPosition newPosition = new ChessPosition(myPosition.getRow() + vertical, myPosition.getColumn() + horizontal);
+        if (board.getPiece(newPosition) == null) {
+            return new ChessMove(myPosition, newPosition, promotion);
+        }
+        else if ((board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.BLACK && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.WHITE)
+                | (board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.WHITE && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)){
+            return new ChessMove(myPosition, newPosition, promotion);
+        }
+        return null;
+    }
+
+
+    public void movePiece(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, PieceType promotion, Collection<ChessMove> valid) {
+        if (vertical == 1 | horizontal == 1) {
+            while (((myPosition.getRow() + vertical) < 8) && ((myPosition.getColumn() + horizontal) < 8)) {
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion, valid);
+                if (vertical != 0) {
+                    vertical++;
+                }
+                if (horizontal != 0) {
+                    horizontal++;
+                }
+                if (okayMove == null){
+                    break;
+                }
+                else{
+                    valid.add(okayMove);
+                }
             }
-            else if ((board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.BLACK && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.WHITE)
-                    | (board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.WHITE && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)){
-                valid.add(new ChessMove(myPosition, newPosition, promotion));
+        }
+        if (vertical == -1 | horizontal == -1) {
+            while (((myPosition.getRow() + vertical) > 0) && ((myPosition.getColumn() + horizontal) > 0)){
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, promotion, valid);
+                if (vertical != 0){
+                    vertical--;
+                }
+                if (horizontal != 0){
+                    horizontal--;
+                }
+                if (okayMove == null){
+                    break;
+                }
+                else{
+                    valid.add(okayMove);
+                }
             }
         }
     }
@@ -116,26 +152,10 @@ public class ChessPiece {
                 //while the next spot to the side is null...
                 //if next spot has enemy player, can move, else not
                 //same for up and down
-                int moveRookLeft = 0;
-                while ((myPosition.getColumn() + moveRookLeft) >= 0){
-                    checkMove(board, myPosition, moveRookLeft, 0, null, validMoves);
-                    moveRookLeft--;
-                }
-                int moveRookRight = 0;
-                while ((myPosition.getColumn() + moveRookRight) < 8){
-                    checkMove(board, myPosition, moveRookRight, 0, null, validMoves);
-                    moveRookRight++;
-                }
-                int moveRookDown = 0;
-                while ((myPosition.getRow() + moveRookDown) >= 0){
-                    checkMove(board, myPosition, 0, moveRookDown, null, validMoves);
-                    moveRookDown--;
-                }
-                int moveRookUp = 0;
-                while ((myPosition.getRow() + moveRookUp) < 8){
-                    checkMove(board, myPosition, 0, moveRookUp, null, validMoves);
-                    moveRookUp++;
-                }
+                movePiece(board, myPosition, 1, 0, null, validMoves);
+                movePiece(board, myPosition, -1, 0, null, validMoves);
+                movePiece(board, myPosition, 0, 1, null, validMoves);
+                movePiece(board, myPosition, 0, -1, null, validMoves);
             case PAWN:
                 break;
         }
