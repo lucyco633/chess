@@ -191,7 +191,14 @@ public class ChessPiece {
                     }
                 }
             case QUEEN:
-                break;
+                movePiece(board, myPosition, 1, 1, null, validMoves);
+                movePiece(board, myPosition, -1, 1, null, validMoves);
+                movePiece(board, myPosition, 1, -1, null, validMoves);
+                movePiece(board, myPosition, -1, -1, null, validMoves);
+                movePiece(board, myPosition, 1, 0, null, validMoves);
+                movePiece(board, myPosition, -1, 0, null, validMoves);
+                movePiece(board, myPosition, 0, 1, null, validMoves);
+                movePiece(board, myPosition, 0, -1, null, validMoves);
             case BISHOP:
                 movePiece(board, myPosition, 1, 1, null, validMoves);
                 movePiece(board, myPosition, -1, 1, null, validMoves);
