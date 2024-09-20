@@ -74,6 +74,9 @@ public class ChessPiece {
         }
         else if ((board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.BLACK && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.WHITE)
                 | (board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.WHITE && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)){
+            if (board.getPiece(myPosition).type == PieceType.PAWN && horizontal == 0){
+                return null;
+            }
             return new ChessMove(myPosition, newPosition, promotion);
         }
         else if ((board.getPiece(newPosition).pieceColor == ChessGame.TeamColor.BLACK && board.getPiece(myPosition).pieceColor == ChessGame.TeamColor.BLACK)
@@ -275,11 +278,11 @@ public class ChessPiece {
             if (myPosition.getRow() == 2) {
                 ChessMove okayMoveUpTwo = checkMove(board, myPosition, 2, 0, null);
                 ChessMove okayMoveUpOne = checkMove(board, myPosition, 1, 0, null);
-                if (okayMoveUpTwo != null && okayMoveUpOne != null) {
-                    valid.add(okayMoveUpTwo);
-                }
                 if (okayMoveUpOne != null) {
                     valid.add(okayMoveUpOne);
+                }
+                if (okayMoveUpTwo != null && okayMoveUpOne != null) {
+                    valid.add(okayMoveUpTwo);
                 }
             }
             if (((myPosition.getColumn() - 1) > 0) && (myPosition.getRow() + 1) <= 8) {
@@ -360,7 +363,7 @@ public class ChessPiece {
             }
             if ((myPosition.getColumn() > 0 && myPosition.getColumn() <=8) && ((myPosition.getRow() + 1) <= 7)){
                 ChessMove okayMove = checkMove(board, myPosition, 1, 0, null);
-                if (!valid.contains(okayMove) && okayMove != null){
+                if (okayMove != null){
                     valid.add(okayMove);
                 }
             }
