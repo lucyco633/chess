@@ -56,6 +56,15 @@ public class ChessGame {
         }
         ChessPiece chessPiece = new ChessPiece(teamTurn, chessBoard.getPiece(startPosition).getPieceType());
         Collection<ChessMove> validMoveList = chessPiece.pieceMoves(chessBoard, startPosition);
+        for (ChessMove validMove: validMoveList){
+            ChessBoard newBoard = chessBoard.clone();
+            newBoard.addPiece(validMove.getEndPosition(), newBoard.getPiece(validMove.getStartPosition()));
+            newBoard.addPiece(validMove.getStartPosition(), null);
+            //how to make sure I'm running isInCheck on cloned board?
+            if (isInCheck(teamTurn)){
+                validMoveList.remove(validMove);
+            }
+        }
         return validMoveList;
         //use isInCheck to remove from list
         //clone to test moves to see if it puts me in check
