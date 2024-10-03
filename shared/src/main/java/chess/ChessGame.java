@@ -51,6 +51,9 @@ public class ChessGame {
      * call validMoves from chessMove?
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        if (chessBoard.getPiece(startPosition).getPieceType() == null){
+            return null;
+        }
         ChessPiece chessPiece = new ChessPiece(teamTurn, chessBoard.getPiece(startPosition).getPieceType());
         Collection<ChessMove> validMoveList = chessPiece.pieceMoves(chessBoard, startPosition);
         return validMoveList;
@@ -65,7 +68,22 @@ public class ChessGame {
      * SWITCH TURNS
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> validMoveList = validMoves(move.getStartPosition());
+        if (!validMoveList.contains(move)){
+            //throw InvalidMoveException;
+        }
+        else {
+            if (move.getPromotionPiece() != null){
+                ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
+                //set type to promotion piece
+                chessBoard.addPiece(move.getEndPosition(), piece);
+                chessBoard.addPiece(move.getStartPosition(), null);
+            }
+            ChessPiece piece = chessBoard.getPiece(move.getStartPosition());
+            chessBoard.addPiece(move.getEndPosition(), piece);
+            chessBoard.addPiece(move.getStartPosition(), null);
+
+        }
     }
 
     /**
