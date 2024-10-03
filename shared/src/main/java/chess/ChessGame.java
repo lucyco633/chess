@@ -70,7 +70,7 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> validMoveList = validMoves(move.getStartPosition());
         if (!validMoveList.contains(move)){
-            //throw InvalidMoveException("Invalid move");
+            throw new InvalidMoveException("Invalid move");
         }
         else {
             if (move.getPromotionPiece() != null){
@@ -158,7 +158,13 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if (isInCheck(teamColor)){
+            ChessPosition king = kingPosition(teamColor);
+            Collection<ChessMove> kingMoves = validMoves(king);
+            for (ChessMove kingMove: kingMoves){
+
+            }
+        }
     }
 
     /**
