@@ -222,7 +222,7 @@ public class ChessPiece {
             if (((myPosition.getColumn() + 1) <= 8) && (myPosition.getRow() - 1) > 0) {
                 ChessPosition attackRight = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn() + 1);
                 if (board.getPiece(attackRight) != null && board.getPiece(attackRight).pieceColor == ChessGame.TeamColor.WHITE) {
-                    if (attackRight.getRow() == 8){
+                    if (attackRight.getRow() == 1){
                         ChessMove okayPromoteQueen = checkMove(board, myPosition, -1, 1, PieceType.QUEEN);
                         ChessMove okayPromoteBishop = checkMove(board, myPosition, -1, 1, PieceType.BISHOP);
                         ChessMove okayPromoteKnight = checkMove(board, myPosition, -1, 1, PieceType.KNIGHT);
