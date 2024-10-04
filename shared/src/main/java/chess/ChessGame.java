@@ -12,9 +12,10 @@ import java.util.Collection;
 public class ChessGame {
     //create private final of board?
     private TeamColor teamTurn;
-    private ChessBoard chessBoard;
+    private ChessBoard chessBoard = new ChessBoard();
     public ChessGame() {
-
+        chessBoard.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -51,18 +52,18 @@ public class ChessGame {
      * call validMoves from chessMove?
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        if (chessBoard.getPiece(startPosition).getPieceType() == null){
-            return null;
+        if (chessBoard.getPiece(startPosition) == null){
+            return new ArrayList<>();
         }
-        ChessPiece chessPiece = new ChessPiece(teamTurn, chessBoard.getPiece(startPosition).getPieceType());
-        Collection<ChessMove> validMoveList = chessPiece.pieceMoves(chessBoard, startPosition);
-        for (ChessMove validMove: validMoveList){
+        Collection<ChessMove> possibleMoveList = chessBoard.getPiece(startPosition).pieceMoves(chessBoard, startPosition);
+        Collection<ChessMove> validMoveList = new ArrayList<>();
+        for (ChessMove validMove: possibleMoveList){
             ChessBoard newBoard = chessBoard.clone();
             newBoard.addPiece(validMove.getEndPosition(), newBoard.getPiece(validMove.getStartPosition()));
             newBoard.addPiece(validMove.getStartPosition(), null);
             //how to make sure I'm running isInCheck on cloned board?
-            if (isInCheck(teamTurn, newBoard)){
-                validMoveList.remove(validMove);
+            if (!isInCheck(teamTurn, newBoard)){
+                validMoveList.add(validMove);
             }
         }
         return validMoveList;
@@ -79,7 +80,7 @@ public class ChessGame {
      * SWITCH TURNS
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        Collection<ChessMove> validMoveList = validMoves(move.getStartPosition());
+        Collection<ChessMove> validMoveList = chessBoard.getPiece(move.getStartPosition()).pieceMoves(chessBoard, move.getStartPosition());
         if (!validMoveList.contains(move)){
             throw new InvalidMoveException("Move not in valid move list");
         }
@@ -109,11 +110,13 @@ public class ChessGame {
     }
 
     private ChessPosition kingPosition(TeamColor teamColor, ChessBoard board){
-        ChessPiece king = new ChessPiece(teamColor, ChessPiece.PieceType.KING);
         for (int row = 1; row <= 8; row++){
             for (int col = 1; col <= 8; col++){
-                if (board.getPiece(new ChessPosition(row, col)) == king){
-                    return new ChessPosition(row, col);
+                if (board.getPiece(new ChessPosition(row, col)) != null){
+                    if (board.getPiece(new ChessPosition(row, col)).getPieceType() == ChessPiece.PieceType.KING &&
+                            board.getPiece(new ChessPosition(row, col)).getTeamColor() == teamColor) {
+                        return new ChessPosition(row, col);
+                    }
                 }
             }
         }
@@ -137,10 +140,9 @@ public class ChessGame {
                 ChessPosition enemyPosition = new ChessPosition(row, col);
                 if (board.getPiece(enemyPosition) != null){
                     if (board.getPiece(enemyPosition).getTeamColor() != teamColor) {
-                        Collection<ChessMove> validMoveList = validMoves(enemyPosition);
+                        Collection<ChessMove> validMoveList = board.getPiece(enemyPosition).pieceMoves(board, enemyPosition);
                         for (ChessMove pieceMove : validMoveList) {
-                            if (king.getRow() == pieceMove.getEndPosition().getRow() &&
-                                    king.getColumn() == pieceMove.getEndPosition().getColumn()) {
+                            if (king.equals(pieceMove.getEndPosition())) {
                                 return true;
                             }
                         }
