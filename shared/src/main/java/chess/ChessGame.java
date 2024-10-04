@@ -59,16 +59,14 @@ public class ChessGame {
         Collection<ChessMove> validMoveList = new ArrayList<>();
         for (ChessMove validMove: possibleMoveList){
             ChessBoard newBoard = chessBoard.clone();
+            TeamColor color = newBoard.getPiece(startPosition).getTeamColor();
             newBoard.addPiece(validMove.getEndPosition(), newBoard.getPiece(validMove.getStartPosition()));
             newBoard.addPiece(validMove.getStartPosition(), null);
-            //how to make sure I'm running isInCheck on cloned board?
-            if (!isInCheck(teamTurn, newBoard)){
+            if (!isInCheck(color, newBoard)){
                 validMoveList.add(validMove);
             }
         }
         return validMoveList;
-        //use isInCheck to remove from list
-        //clone to test moves to see if it puts me in check
     }
 
     /**
@@ -117,16 +115,33 @@ public class ChessGame {
     private ChessPosition kingPosition(TeamColor teamColor, ChessBoard board){
         for (int row = 1; row <= 8; row++){
             for (int col = 1; col <= 8; col++){
-                if (board.getPiece(new ChessPosition(row, col)) != null){
-                    if (board.getPiece(new ChessPosition(row, col)).getPieceType() == ChessPiece.PieceType.KING &&
-                            board.getPiece(new ChessPosition(row, col)).getTeamColor() == teamColor) {
-                        return new ChessPosition(row, col);
+                ChessPosition possiblePosition = new ChessPosition(row, col);
+                ChessPiece pieceAt = board.getPiece(possiblePosition);
+                if (pieceAt != null){
+                    if (pieceAt.getPieceType() == ChessPiece.PieceType.KING &&
+                            pieceAt.getTeamColor() == teamColor) {
+                        return possiblePosition;
                     }
                 }
             }
         }
         return null;
     }
+
+
+    public Collection<ChessPosition> findEnemyPositions(TeamColor teamColor, ChessBoard board){
+        Collection<ChessPosition> enemyPositions = new ArrayList<>();
+        for (int row = 1; row <= 8; row++){
+            for (int col = 1; col <= 8; col++){
+                if (board.getPiece(new ChessPosition(row, col)) != null &&
+                        teamColor != board.getPiece(new ChessPosition(row, col)).getTeamColor()){
+                    enemyPositions.add(new ChessPosition(row, col));
+                }
+            }
+        }
+        return enemyPositions;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -140,19 +155,13 @@ public class ChessGame {
 
     public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
         ChessPosition king = kingPosition(teamColor, board);
-        if (king != null){
-            for (int row = 1; row <= 8; row++) {
-                for (int col = 1; col <= 8; col++) {
-                    ChessPosition enemyPosition = new ChessPosition(row, col);
-                    if (board.getPiece(enemyPosition) != null){
-                        if (board.getPiece(enemyPosition).getTeamColor() != teamColor) {
-                            Collection<ChessMove> validMoveList = board.getPiece(enemyPosition).pieceMoves(board, enemyPosition);
-                            for (ChessMove pieceMove : validMoveList) {
-                                if (king.equals(pieceMove.getEndPosition())) {
-                                    return true;
-                                }
-                            }
-                        }
+        if (king != null) {
+            Collection<ChessPosition> enemyPositions = findEnemyPositions(teamColor, board);
+            for (ChessPosition enemy : enemyPositions) {
+                Collection<ChessMove> possibleMoves = board.getPiece(enemy).pieceMoves(board, enemy);
+                for (ChessMove move : possibleMoves) {
+                    if (king.equals(move.getEndPosition())) {
+                        return true;
                     }
                 }
             }
