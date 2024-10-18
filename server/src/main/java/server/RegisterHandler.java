@@ -5,6 +5,6 @@ import spark.Route;
 
 public class RegisterHandler implements Route{
     public Object handle(Request request, Response response){
-
+        return "registered";
     }
 }
