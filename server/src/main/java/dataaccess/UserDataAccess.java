@@ -10,6 +10,6 @@ public interface UserDataAccess {
 
     UserData createUser(UserData user) throws DataAccessException;
 
-
+    UserData clearUser() throws DataAccessException;
 
 }
