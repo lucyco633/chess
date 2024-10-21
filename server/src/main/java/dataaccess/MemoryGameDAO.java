@@ -4,7 +4,6 @@ import chess.ChessGame;
 import model.GameData;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class MemoryGameDAO implements GameDAO{
 
@@ -25,10 +24,12 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public void createGame(String gameName) throws DataAccessException{
         //how to set usernames and gameID??
-        GameData newGame = new GameData(1234, "whiteUsername", "blackUsername", gameName, game);
+        GameData newGame = new GameData(1234, "whiteUsername", "blackUsername", gameName, new ChessGame());
         gameDB.put(newGame.gameID(), newGame);
     }
 
     @Override
-    public void delete() throws DataAccessException{}
+    public void delete() throws DataAccessException{
+        gameDB.clear();
+    }
 }
