@@ -5,7 +5,6 @@ import model.GameData;
 import model.UserData;
 import model.AuthData;
 import dataaccess.DataAccessException;
-import service.GameService;
 import service.UserService;
 import spark.*;
 
@@ -22,12 +21,19 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.delete("/db", this::clearAllData);
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object clearAllData(Request req, Response res) throws DataAccessException {
+        userService.clear();
+        res.status(200);
+        return "";
     }
 
     public void stop() {
