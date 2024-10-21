@@ -1,9 +1,6 @@
 package dataaccess;
-import dataaccess.DataAccessException;
-import chess.ChessGame;
 import model.GameData;
 
-import java.util.Collection;
 import java.util.Map;
 
 public interface GameDataAccess {
@@ -12,4 +9,6 @@ public interface GameDataAccess {
     Map<Integer, GameData> listGames(int gameID) throws DataAccessException;
 
     GameData createGame(String gameName) throws DataAccessException;
+
+    void deleteAllGameData() throws DataAccessException;
 }

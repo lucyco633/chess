@@ -1,6 +1,4 @@
 package dataaccess;
-import chess.ChessGame;
-import dataaccess.DataAccessException;
 //create model class with record for User? Where?
 import model.UserData;
 
@@ -10,6 +8,6 @@ public interface UserDataAccess {
 
     UserData createUser(UserData user) throws DataAccessException;
 
-    UserData clearUser() throws DataAccessException;
+    void deleteAllUserData() throws DataAccessException;
 
 }
