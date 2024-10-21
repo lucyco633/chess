@@ -29,7 +29,7 @@ public class MemoryGameDAO implements GameDAO{
     }
 
     @Override
-    public void delete() throws DataAccessException{
-        gameDB.clear();
+    public void deleteGame(int gameID) throws DataAccessException{
+        gameDB.remove(gameID);
     }
 }

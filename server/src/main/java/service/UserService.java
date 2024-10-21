@@ -25,7 +25,7 @@ public class UserService {
 
     public void clear() throws DataAccessException {
         authDataAccess.deleteAllAuthData();
-        userDataAccess.delete();
-        gameDataAccess.delete();
+        userDataAccess.deleteUser();
+        gameDataAccess.deleteGame();
     }
 }

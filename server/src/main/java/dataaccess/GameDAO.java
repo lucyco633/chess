@@ -10,5 +10,5 @@ public interface GameDAO {
 
     void createGame(String gameName) throws DataAccessException;
 
-    void delete() throws DataAccessException;
+    void deleteGame(int gameID) throws DataAccessException;
 }

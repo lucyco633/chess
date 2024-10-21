@@ -10,6 +10,6 @@ public interface UserDAO {
 
     void updateUser(UserData user, String password, String email);
 
-    void delete() throws DataAccessException;
+    void deleteUser(String username) throws DataAccessException;
 
 }
