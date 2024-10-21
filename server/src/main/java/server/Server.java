@@ -21,7 +21,10 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
-        Spark.delete("/db", this::clearAllData);
+        //Spark.delete("/db", this::clearAllData);
+        Spark.delete("/db", (req, res) ->
+                (new ClearHandler()).handle(req, res));
+
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
@@ -30,11 +33,11 @@ public class Server {
         return Spark.port();
     }
 
-    private Object clearAllData(Request req, Response res) throws DataAccessException {
-        userService.clear();
-        res.status(200);
-        return "";
-    }
+    //private Object clearAllData(Request req, Response res) throws DataAccessException {
+        //userService.clear();
+        //res.status(200);
+        //return "";
+    //}
 
     public void stop() {
         Spark.stop();

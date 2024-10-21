@@ -13,6 +13,7 @@ public class ClearHandler implements HttpHandler {
     public ClearHandler(UserService service) {
         this.service = service;
     }
+    //pass in database?
     public void handle(HttpExchange exchange) throws IOException{
 
         boolean success = false;

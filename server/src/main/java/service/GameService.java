@@ -1,19 +1,15 @@
 package service;
 
-import model.GameData;
-import model.UserData;
-import dataaccess.AuthDataAccess;
-import dataaccess.GameDataAccess;
-import dataaccess.UserDataAccess;
-
-import java.util.Map;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 
 public class GameService {
-    private final AuthDataAccess authDataAccess;
-    private final UserDataAccess userDataAccess;
-    private final GameDataAccess gameDataAccess;
+    private final AuthDAO authDataAccess;
+    private final UserDAO userDataAccess;
+    private final GameDAO gameDataAccess;
 
-    public GameService(AuthDataAccess authDataAccess, UserDataAccess userDataAccess, GameDataAccess gameDataAccess) {
+    public GameService(AuthDAO authDataAccess, UserDAO userDataAccess, GameDAO gameDataAccess) {
         this.authDataAccess = authDataAccess;
         this.userDataAccess = userDataAccess;
         this.gameDataAccess = gameDataAccess;

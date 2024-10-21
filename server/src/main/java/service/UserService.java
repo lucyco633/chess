@@ -1,17 +1,16 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.AuthDataAccess;
-import dataaccess.GameDataAccess;
-import dataaccess.UserDataAccess;
-import model.GameData;
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 
 public class UserService {
-    private final AuthDataAccess authDataAccess;
-    private final UserDataAccess userDataAccess;
-    private final GameDataAccess gameDataAccess;
+    private final AuthDAO authDataAccess;
+    private final UserDAO userDataAccess;
+    private final GameDAO gameDataAccess;
 
-    public UserService(AuthDataAccess authDataAccess, UserDataAccess userDataAccess, GameDataAccess gameDataAccess) {
+    public UserService(AuthDAO authDataAccess, UserDAO userDataAccess, GameDAO gameDataAccess) {
         this.authDataAccess = authDataAccess;
         this.userDataAccess = userDataAccess;
         this.gameDataAccess = gameDataAccess;
@@ -26,7 +25,7 @@ public class UserService {
 
     public void clear() throws DataAccessException {
         authDataAccess.deleteAllAuthData();
-        userDataAccess.deleteAllUserData();
-        gameDataAccess.deleteAllGameData();
+        userDataAccess.delete();
+        gameDataAccess.delete();
     }
 }
