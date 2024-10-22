@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class MemoryGameDAO implements GameDAO{
 
     //map with gameID as the key and GameData object as the value
-    HashMap<Integer, GameData> gameDB = new HashMap<>();
+    public HashMap<Integer, GameData> gameDB = new HashMap<>();
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException{
