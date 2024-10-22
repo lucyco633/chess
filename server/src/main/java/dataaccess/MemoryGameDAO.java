@@ -23,8 +23,8 @@ public class MemoryGameDAO implements GameDAO{
 
     @Override
     public void createGame(String gameName) throws DataAccessException{
-        //how to set usernames and gameID??
-        GameData newGame = new GameData(1234, "whiteUsername", "blackUsername", gameName, new ChessGame());
+        //how to set usernames and gameID?? random or sequentially
+        GameData newGame = new GameData(1234, null, null, gameName, new ChessGame());
         gameDB.put(newGame.gameID(), newGame);
     }
 

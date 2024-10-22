@@ -5,50 +5,20 @@ import java.net.*;
 import com.sun.net.httpserver.*;
 import dataaccess.DataAccessException;
 import service.UserService;
+import spark.Request;
+import spark.Response;
+import spark.Route;
 
 
-public class ClearHandler implements HttpHandler {
-    private final UserService service;
+public class ClearHandler implements Route {
 
-    public ClearHandler(UserService service) {
-        this.service = service;
-    }
-    //pass in database?
-    public void handle(HttpExchange exchange) throws IOException{
+    public UserService userService;
 
-        boolean success = false;
+    public Object handle(Request request, Response response) throws DataAccessException{
+        userService.clear();
+        //if user.clear() worked then 200, else 500??
 
-        try {
-            if (exchange.getRequestMethod().toLowerCase().equals("delete")){
-                Headers requestHeaders = exchange.getRequestHeaders();
-                if (requestHeaders.isEmpty()){
-                    service.clear();
-                    exchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0);
-                    success = true;
-                }
-            }
-            if (!success){
-                exchange.sendResponseHeaders(HttpURLConnection.HTTP_SERVER_ERROR, 0);
-                String resp = "{ \"message\": \"Error: unable to clear games\"";
-                OutputStream respBody = exchange.getResponseBody();
-                writeOutput(resp, respBody);
-                exchange.getResponseBody().close();
-            }
-        } catch (DataAccessException e) {
-            exchange.sendResponseHeaders(HttpURLConnection.HTTP_SERVER_ERROR, 0);
-            String resp = "{ \"message\": \"Error: data access error\"";
-            OutputStream respBody = exchange.getResponseBody();
-            writeOutput(resp, respBody);
-            exchange.getResponseBody().close();
-        }
-        catch (IOException e) {
-            exchange.sendResponseHeaders(HttpURLConnection.HTTP_SERVER_ERROR, 0);
-            e.printStackTrace();
-        }
-    }
-    private void writeOutput(String outString, OutputStream os) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(os);
-        writer.write(outString);
-        writer.flush();
+        response.status(200);
+        return "";
     }
 }

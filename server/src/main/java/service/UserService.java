@@ -1,22 +1,19 @@
 package service;
 
-import dataaccess.DataAccessException;
-import dataaccess.AuthDAO;
-import dataaccess.GameDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 
 public class UserService {
-    private final AuthDAO authDataAccess;
-    private final UserDAO userDataAccess;
-    private final GameDAO gameDataAccess;
 
-    public UserService(AuthDAO authDataAccess, UserDAO userDataAccess, GameDAO gameDataAccess) {
-        this.authDataAccess = authDataAccess;
-        this.userDataAccess = userDataAccess;
-        this.gameDataAccess = gameDataAccess;
+    public DataAccess dataAccess;
+
+    //can pass in UserData or RegisterRequest
+    //return Register Result?
+    public void register(String username, String password, String email) throws DataAccessException{
+        //public boolean?
+        if (dataAccess.getUser(username) == null){
+            dataAccess.createUser(username, password, email);
+        }
     }
-
-    //public AuthData register(UserData user) {}
     //public AuthData login(UserData user) {}
     //public void logout(AuthData auth) {}
     //public Map<Integer, GameData> listGames() {}
@@ -24,8 +21,6 @@ public class UserService {
     //public void joinGame(UserData user) {}
 
     public void clear() throws DataAccessException {
-        authDataAccess.deleteAllAuthData();
-        userDataAccess.deleteUser();
-        gameDataAccess.deleteGame();
+        dataAccess.clear();
     }
 }
