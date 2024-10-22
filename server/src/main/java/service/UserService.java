@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.UserData;
 
 public class UserService {
 
@@ -28,13 +29,28 @@ public class UserService {
             //{ "message": "Error: (description of error)" }
         }
     }
-    //public AuthData login(UserData user) {}
-    //public void logout(AuthData auth) {}
+
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException{
+        UserData userData = memoryUserDAO.getUser(loginRequest.username());
+        String authToken = "";
+        if (userData != null){
+            if (userData.password() == loginRequest.password()){
+                authToken = memoryAuthDAO.createAuth(loginRequest.username());
+                return new LoginResult(loginRequest.username(), authToken);
+            }
+        }
+        if (authToken == "") {
+            //{ "message": "Error: unauthorized" }
+        }
+        //return { "message": "Error: (description of error)" }
+    }
+
+    public void logout(AuthData auth) {}
     //public Map<Integer, GameData> listGames() {}
     //public String createGame(String gameName) {}
     //public void joinGame(UserData user) {}
 
     public void clear() throws DataAccessException {
-        dataAccess.clear();
+        //clear all DBs
     }
 }
