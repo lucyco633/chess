@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO{
 
-    public HashMap<String, AuthData> authDB = new HashMap<>();
+    public static HashMap<String, AuthData> authDB = new HashMap<>();
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {

@@ -11,9 +11,9 @@ import java.util.Objects;
 
 public class UserService {
 
-    public MemoryUserDAO memoryUserDAO;
-    public MemoryGameDAO memoryGameDAO;
-    public MemoryAuthDAO memoryAuthDAO;
+    public MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+    public MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
+    public MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
 
     //can pass in UserData or RegisterRequest
     //return Register Result?
@@ -134,7 +134,7 @@ public class UserService {
         }
     }
 
-    public EmptyResult clear() throws DataAccessException, ResultExceptions {
+    public EmptyResult clear(EmptyRequest emptyRequest) throws DataAccessException, ResultExceptions {
         memoryAuthDAO.authDB.clear();
         memoryUserDAO.userDB.clear();
         memoryGameDAO.gameDB.clear();

@@ -3,12 +3,15 @@ package dataaccess;
 import chess.ChessGame;
 import model.GameData;
 
+import java.util.Random;
+import java.util.Random.*;
+
 import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO{
 
     //map with gameID as the key and GameData object as the value
-    public HashMap<Integer, GameData> gameDB = new HashMap<>();
+    public static HashMap<Integer, GameData> gameDB = new HashMap<>();
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException{
@@ -24,7 +27,8 @@ public class MemoryGameDAO implements GameDAO{
     @Override
     public GameData createGame(String gameName) throws DataAccessException{
         //how to set usernames and gameID?? random or sequentially
-        GameData newGame = new GameData(1234, null, null, gameName, new ChessGame());
+        Random rand = new Random();
+        GameData newGame = new GameData(rand.nextInt(100), null, null, gameName, new ChessGame());
         gameDB.put(newGame.gameID(), newGame);
         return newGame;
     }
