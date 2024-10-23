@@ -18,7 +18,7 @@ public class CreateGameHandler implements Route {
 
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var gameName = new Gson().fromJson(request.body(), GameName.class);
-        var createGameRequest = new CreateGameRequest(request.headers("Authorization"), gameName.gameName());
+        var createGameRequest = new CreateGameRequest(gameName.gameName(), request.headers("Authorization"));
         try {
             var createGameResult = userService.createGame(createGameRequest);
             response.status(200);

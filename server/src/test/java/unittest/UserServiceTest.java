@@ -37,10 +37,6 @@ public class UserServiceTest {
     @Test
     void registerBadRequest() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException {
         var registerRequest = new RegisterRequest(null, "helloworld", "lucyco7@byu.edu");
-        //var actual = userService.register(registerRequest);
-        //how to test for any int?
-        //assert not null authToken
-        //var expected = new RegisterResult("lucyco7", "1");
         assertThrows(ResultExceptions.BadRequestError.class, () -> userService.register(registerRequest));
     }
 
@@ -50,11 +46,17 @@ public class UserServiceTest {
         var registered = userService.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
         var actual = userService.login(loginRequest);
-        //how to test for any int?
-        //assert not null authToken
         var expected = new LoginResult("lucyco7", "1");
         assertEquals(expected.username(), actual.username());
         assertNotNull(actual.authToken());
+    }
+
+    @Test
+    void loginAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+        var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
+        var registered = userService.register(registerRequest);
+        var loginRequest = new LoginRequest("wrongname", "helloworld");
+        assertThrows(ResultExceptions.AuthorizationError.class, () -> userService.login(loginRequest));
     }
 
     @Test
@@ -72,6 +74,16 @@ public class UserServiceTest {
     }
 
     @Test
+    void logoutAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+        var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
+        var registered = userService.register(registerRequest);
+        var loginRequest = new LoginRequest("lucyco7", "helloworld");
+        var loggedIn = userService.login(loginRequest);
+        var logoutRequest = new LogoutRequest("1");
+        assertThrows(ResultExceptions.AuthorizationError.class, () -> userService.logout(logoutRequest));
+    }
+
+    @Test
     void listGamesSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = userService.register(registerRequest);
@@ -84,8 +96,22 @@ public class UserServiceTest {
         var listGamesRequest = new ListGamesRequest(loggedIn.authToken());
         var actual = userService.listGames(listGamesRequest);
         assertEquals(2, actual.games().size());
-        assertNotNull(actual.games().get(createGame1.gameID()));
-        assertNotNull(actual.games().get(createGame2.gameID()));
+        assertTrue(actual.games().contains(userService.memoryGameDAO.getGame(createGame1.gameID())));
+        assertTrue(actual.games().contains(userService.memoryGameDAO.getGame(createGame2.gameID())));
+    }
+
+    @Test
+    void listAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+        var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
+        var registered = userService.register(registerRequest);
+        var loginRequest = new LoginRequest("lucyco7", "helloworld");
+        var loggedIn = userService.login(loginRequest);
+        var createGameRequest1 = new CreateGameRequest("Game 1", loggedIn.authToken());
+        var createGame1 = userService.createGame(createGameRequest1);
+        var createGameRequest2 = new CreateGameRequest("Game 2", loggedIn.authToken());
+        var createGame2 = userService.createGame(createGameRequest2);
+        var listGamesRequest = new ListGamesRequest("1");
+        assertThrows(ResultExceptions.AuthorizationError.class, () -> userService.listGames(listGamesRequest));
     }
 
     @Test
@@ -97,6 +123,15 @@ public class UserServiceTest {
         var createGameRequest1 = new CreateGameRequest("Game 1", loggedIn.authToken());
         var createGame1 = userService.createGame(createGameRequest1);
         assertNotNull(createGame1.gameID());
+    }
+
+    @Test
+    void createGameBadRequest() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+        var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
+        var registered = userService.register(registerRequest);
+        var loginRequest = new LoginRequest("lucyco7", "helloworld");
+        var loggedIn = userService.login(loginRequest);
+        assertThrows(ResultExceptions.BadRequestError.class, () -> userService.createGame(null));
     }
 
     @Test
@@ -114,6 +149,20 @@ public class UserServiceTest {
     }
 
     @Test
+    void joinGameTakenError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+        var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
+        var registered = userService.register(registerRequest);
+        var loginRequest = new LoginRequest("lucyco7", "helloworld");
+        var loggedIn = userService.login(loginRequest);
+        var createGameRequest1 = new CreateGameRequest("Game 1", loggedIn.authToken());
+        var createGame1 = userService.createGame(createGameRequest1);
+        var joinGameRequest = new JoinGameRequest("BLACK", createGame1.gameID(), loggedIn.authToken());
+        var actual = userService.joinGame(joinGameRequest);
+        var expected = new JoinGameResult("BLACK", createGame1.gameID());
+        assertThrows(ResultExceptions.AlreadyTakenError.class, () -> userService.joinGame(joinGameRequest));
+    }
+
+    @Test
     void clearSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = userService.register(registerRequest);
@@ -125,6 +174,6 @@ public class UserServiceTest {
         var actual = userService.joinGame(joinGameRequest);
         var clearRequest = new EmptyRequest();
         userService.clear(clearRequest);
-        //assertTrue(userService.memoryAuthDAO.   size??);
+        assertNull(userService.memoryAuthDAO.getAuth(loggedIn.authToken()));
     }
 }

@@ -2,7 +2,9 @@ package service.Results;
 
 import model.GameData;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
-public record ListGamesResult(Map<Integer, GameData> games) {
+public record ListGamesResult(Collection<GameData> games) {
 }

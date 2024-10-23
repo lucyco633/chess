@@ -16,7 +16,6 @@ public class RegisterHandler implements Route{
         try {
             var registerResult = userService.register(registerRequest);
             response.status(200);
-            //how to put result into body??
             response.body(new Gson().toJson(registerResult));
             return response.body();
         }

@@ -1,4 +1,4 @@
 package server;
 
-public record JoinGameInfo(String teamColor, Integer gameID) {
+public record JoinGameInfo(String playerColor, Integer gameID) {
 }
