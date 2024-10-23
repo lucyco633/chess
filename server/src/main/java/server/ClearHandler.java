@@ -24,14 +24,14 @@ public class ClearHandler implements Route {
         try {
             var emptyResult = userService.clear(emptyRequest);
             response.status(200);
-            response.body(null);
+            response.body("{}");
+            return "{}";
         }
         catch (ResultExceptions e){
             //add string??
             response.status(500);
             response.body("{ \"message\": \"Error: unable to clear game\" }");
+            return response.body();
         }
-
-        return null;
     }
 }

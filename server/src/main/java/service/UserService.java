@@ -19,6 +19,9 @@ public class UserService {
     //return Register Result?
     public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException, ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError {
         //public boolean?
+        if (registerRequest == null){
+            throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
+        }
         if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null){
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
@@ -54,13 +57,16 @@ public class UserService {
     }
 
     public EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException, ResultExceptions.AuthorizationError, ResultExceptions {
-        String authToken = logoutRequest.authToken();
-        if (memoryAuthDAO.getAuth(authToken) == null){
+        if (logoutRequest == null){
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
+        String authToken = logoutRequest.authToken();
         if (memoryAuthDAO.getAuth(authToken) != null){
             memoryAuthDAO.deleteAuth(authToken);
             return new EmptyResult();
+        }
+        if (memoryAuthDAO.getAuth(authToken) == null){
+            throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
         else {
             throw new ResultExceptions("{ \"message\": \"Error: unable to logout\" }");
@@ -68,6 +74,9 @@ public class UserService {
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException, ResultExceptions.AuthorizationError, ResultExceptions {
+        if (listGamesRequest == null){
+            throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
+        }
         AuthData authData = memoryAuthDAO.getAuth(listGamesRequest.authToken());
         if (authData == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
