@@ -1,15 +1,12 @@
-package unittest;
+package service;
 
 import dataaccess.DataAccessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.Requests.*;
-import service.ResultExceptions;
-import service.Results.CreateGameResult;
 import service.Results.JoinGameResult;
 import service.Results.LoginResult;
 import service.Results.RegisterResult;
-import service.UserService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
