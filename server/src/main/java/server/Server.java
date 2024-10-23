@@ -1,11 +1,5 @@
 package server;
 
-import com.google.gson.Gson;
-import model.GameData;
-import model.UserData;
-import model.AuthData;
-import dataaccess.DataAccessException;
-import service.UserService;
 import spark.*;
 
 public class Server {
@@ -31,11 +25,6 @@ public class Server {
         return Spark.port();
     }
 
-    //private Object clearAllData(Request req, Response res) throws DataAccessException {
-        //userService.clear();
-        //res.status(200);
-        //return "";
-    //}
 
     public void stop() {
         Spark.stop();

@@ -14,14 +14,14 @@ public class JoinGameHandler implements Route {
 
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var joinGameInfo = new Gson().fromJson(request.body(), JoinGameInfo.class);
-        var joinGameRequest = new JoinGameRequest(joinGameInfo.playerColor(), joinGameInfo.gameID(), request.headers("Authorization"));
+        var joinGameRequest = new JoinGameRequest(joinGameInfo.playerColor(), joinGameInfo.gameID(),
+                request.headers("Authorization"));
         try {
             var joinGameResult = userService.joinGame(joinGameRequest);
             response.status(200);
             response.body(new Gson().toJson(joinGameResult));
             return response.body();
-        }
-        catch (ResultExceptions e){
+        } catch (ResultExceptions e) {
             response.status(500);
             response.body("{ \"message\": \"Error: unable to create game\" }");
             return response.body();

@@ -15,19 +15,19 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(String username, String password, String email) throws DataAccessException{
+    public void createUser(String username, String password, String email) {
         UserData newUser = new UserData(username, password, email);
         userDB.put(username, newUser);
     }
 
     @Override
-    public void updateUser(UserData user, String password, String email){
+    public void updateUser(UserData user, String password, String email) {
         UserData updatedUser = new UserData(user.username(), password, email);
         userDB.put(user.username(), updatedUser);
     }
 
     @Override
-    public void deleteUser(String username) throws DataAccessException{
+    public void deleteUser(String username) {
         userDB.remove(username);
     }
 }

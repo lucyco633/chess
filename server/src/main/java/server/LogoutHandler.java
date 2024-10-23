@@ -2,7 +2,6 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.Requests.LoginRequest;
 import service.Requests.LogoutRequest;
 import service.ResultExceptions;
 import service.UserService;
@@ -20,8 +19,7 @@ public class LogoutHandler implements Route {
             response.status(200);
             response.body(new Gson().toJson(logoutResult));
             return response.body();
-        }
-        catch (ResultExceptions e){
+        } catch (ResultExceptions e) {
             response.status(500);
             response.body("{ \"message\": \"Error: unable to create game\" }");
             return response.body();
