@@ -1,14 +1,15 @@
 package server;
+
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.Requests.RegisterRequest;
+import service.requests.RegisterRequest;
 import service.ResultExceptions;
 import service.UserService;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-public class RegisterHandler implements Route{
+public class RegisterHandler implements Route {
     public UserService userService = new UserService();
 
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
@@ -18,8 +19,7 @@ public class RegisterHandler implements Route{
             response.status(200);
             response.body(new Gson().toJson(registerResult));
             return response.body();
-        }
-        catch (ResultExceptions e){
+        } catch (ResultExceptions e) {
             response.status(500);
             response.body("{ \"message\": \"Error: unable to create game\" }");
             return response.body();

@@ -4,8 +4,8 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import service.Requests.*;
-import service.Results.*;
+import service.requests.*;
+import service.results.*;
 
 import java.util.Objects;
 

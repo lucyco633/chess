@@ -2,7 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.Requests.CreateGameRequest;
+import service.requests.CreateGameRequest;
 import service.ResultExceptions;
 import service.UserService;
 import spark.Request;

@@ -1,10 +1,8 @@
-package service.Results;
+package service.results;
 
 import model.GameData;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
 public record ListGamesResult(Collection<GameData> games) {
 }

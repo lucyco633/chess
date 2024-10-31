@@ -2,7 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import service.Requests.LoginRequest;
+import service.requests.LoginRequest;
 import service.ResultExceptions;
 import service.UserService;
 import spark.Request;
@@ -19,8 +19,7 @@ public class LoginHandler implements Route {
             response.status(200);
             response.body(new Gson().toJson(loginResult));
             return response.body();
-        }
-        catch (ResultExceptions e){
+        } catch (ResultExceptions e) {
             response.status(500);
             response.body("{ \"message\": \"Error: unable to create game\" }");
             return response.body();
