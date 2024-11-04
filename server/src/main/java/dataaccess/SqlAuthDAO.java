@@ -20,9 +20,22 @@ public class SqlAuthDAO implements AuthDAO {
         configureDatabase();
     }
 
-    
+
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, authToken);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readAuth(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResultExceptions(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
@@ -30,8 +43,9 @@ public class SqlAuthDAO implements AuthDAO {
     @Override
     public String createAuth(String username) throws DataAccessException, ResultExceptions {
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
-        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        return executeCreate(statement, newAuth.authToken(), newAuth.username());
+        var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
+        var json = new Gson().toJson(newAuth);
+        return executeCreate(statement, newAuth.authToken(), newAuth.username(), json);
     }
 
 
@@ -39,6 +53,13 @@ public class SqlAuthDAO implements AuthDAO {
     public void deleteAuth(String authToken) throws DataAccessException, ResultExceptions {
         var statement = "DELETE FROM auth WHERE authToken=?";
         executeDelete(statement, authToken);
+    }
+
+
+    private AuthData readAuth(ResultSet rs) throws SQLException {
+        var authToken = rs.getString("authToken");
+        var json = rs.getString("json");
+        return new Gson().fromJson(json, AuthData.class);
     }
 
 
@@ -87,6 +108,7 @@ public class SqlAuthDAO implements AuthDAO {
             CREATE TABLE IF NOT EXISTS  auth (
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
               PRIMARY KEY(authToken),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
