@@ -1,4 +1,119 @@
 package dataaccess;
 
-public class SqlUserDAO {
+import com.google.gson.Gson;
+import model.AuthData;
+import model.UserData;
+import service.ResultExceptions;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.UUID;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
+public class SqlUserDAO implements UserDAO {
+
+    public SqlUserDAO() throws ResultExceptions, DataAccessException {
+        configureDatabase();
+    }
+
+    @Override
+    public UserData getUser(String username) throws DataAccessException, ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return readUser(rs);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new ResultExceptions(String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
+    }
+
+    @Override
+    public void createUser(String username, String password, String email) throws DataAccessException, ResultExceptions {
+        var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
+        UserData newUser = new UserData(username, password, email);
+        var json = new Gson().toJson(newUser);
+        executeCreate(statement, newUser.username(), newUser.password(), newUser.email(), json);
+    }
+
+    @Override
+    public void updateUser(UserData user, String password, String email) {
+
+    }
+
+    @Override
+    public void deleteUser(String username) throws DataAccessException, ResultExceptions {
+        var statement = "DELETE FROM user WHERE username=?";
+        executeDelete(statement, username);
+    }
+
+    private void executeDelete(String statement, Object... params) throws ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void executeCreate(String statement, Object... params) throws ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                for (var i = 0; i < params.length; i++) {
+                    var param = params[i];
+                    if (param instanceof String p) ps.setString(i + 1, p);
+                }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UserData readUser(ResultSet rs) throws SQLException {
+        var username = rs.getString("username");
+        var json = rs.getString("json");
+        return new Gson().fromJson(json, UserData.class);
+    }
+
+    private final String[] createUserStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  user (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              `json` TEXT DEFAULT NULL,
+              INDEX(username)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
+    private void configureDatabase() throws DataAccessException, ResultExceptions {
+        DatabaseManager.createDatabase();
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createUserStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
+            }
+        } catch (SQLException ex) {
+            throw new ResultExceptions(String.format("Unable to configure database: %s", ex.getMessage()));
+        }
+    }
 }
