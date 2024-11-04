@@ -30,9 +30,4 @@ public class MemoryGameDAO implements GameDAO {
         gameDB.put(newGame.gameID(), newGame);
         return newGame;
     }
-
-    @Override
-    public void deleteGame(int gameID) throws DataAccessException {
-        gameDB.remove(gameID);
-    }
 }

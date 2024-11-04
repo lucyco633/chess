@@ -4,6 +4,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import service.requests.*;
 import service.results.*;
 
@@ -40,7 +41,8 @@ public class UserService {
         UserData userData = memoryUserDAO.getUser(loginRequest.username());
         String authToken = "";
         if (userData != null) {
-            if (Objects.equals(userData.password(), loginRequest.password())) {
+            //changed to check hashed password
+            if (BCrypt.checkpw(loginRequest.password(), userData.password())) {
                 authToken = memoryAuthDAO.createAuth(loginRequest.username());
                 return new LoginResult(loginRequest.username(), authToken);
             }
