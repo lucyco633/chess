@@ -1,15 +1,11 @@
 package dataaccess;
 
 import com.google.gson.Gson;
-import model.AuthData;
 import model.UserData;
 import service.ResultExceptions;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.UUID;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class SqlUserDAO implements UserDAO {
 
@@ -41,11 +37,6 @@ public class SqlUserDAO implements UserDAO {
         UserData newUser = new UserData(username, password, email);
         var json = new Gson().toJson(newUser);
         executeCreate(statement, newUser.username(), newUser.password(), newUser.email(), json);
-    }
-
-    @Override
-    public void updateUser(UserData user, String password, String email) {
-
     }
 
     @Override
