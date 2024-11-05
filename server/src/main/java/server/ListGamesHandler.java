@@ -4,18 +4,18 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.requests.ListGamesRequest;
 import service.ResultExceptions;
-import service.UserService;
+import service.Service;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class ListGamesHandler implements Route {
-    public UserService userService = new UserService();
+    public Service userService = new Service();
 
     public ListGamesHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
+    public Object handle(Request request, Response response) throws DataAccessException {
         var listGameRequest = new ListGamesRequest(request.headers("Authorization"));
         try {
             var listGameResult = userService.listGames(listGameRequest);

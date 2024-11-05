@@ -4,18 +4,18 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.requests.LogoutRequest;
 import service.ResultExceptions;
-import service.UserService;
+import service.Service;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class LogoutHandler implements Route {
-    public UserService userService = new UserService();
+    public Service userService = new Service();
 
     public LogoutHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
+    public Object handle(Request request, Response response) throws DataAccessException {
         var logoutRequest = new LogoutRequest(request.headers("Authorization"));
         try {
             var logoutResult = userService.logout(logoutRequest);

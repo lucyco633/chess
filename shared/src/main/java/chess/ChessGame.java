@@ -11,7 +11,6 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-    //create private final of board?
     private TeamColor teamTurn;
     private ChessBoard chessBoard = new ChessBoard();
 

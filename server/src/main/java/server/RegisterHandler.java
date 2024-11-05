@@ -4,18 +4,18 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.requests.RegisterRequest;
 import service.ResultExceptions;
-import service.UserService;
+import service.Service;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 public class RegisterHandler implements Route {
-    public UserService userService = new UserService();
+    public Service userService = new Service();
 
     public RegisterHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
+    public Object handle(Request request, Response response) throws DataAccessException {
         var registerRequest = new Gson().fromJson(request.body(), RegisterRequest.class);
         try {
             var registerResult = userService.register(registerRequest);

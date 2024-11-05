@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import service.requests.EmptyRequest;
 import service.ResultExceptions;
-import service.UserService;
+import service.Service;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -12,12 +12,12 @@ import spark.Route;
 
 public class ClearHandler implements Route {
 
-    public UserService userService = new UserService();
+    public Service userService = new Service();
 
     public ClearHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
+    public Object handle(Request request, Response response) throws DataAccessException {
         var emptyRequest = new Gson().fromJson(request.body(), EmptyRequest.class);
         try {
             var emptyResult = userService.clear(emptyRequest);

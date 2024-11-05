@@ -1,6 +1,5 @@
 package chess;
 
-import java.lang.ref.Cleaner;
 import java.util.Arrays;
 import java.util.Objects;
 

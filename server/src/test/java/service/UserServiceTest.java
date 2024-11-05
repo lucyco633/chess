@@ -11,11 +11,11 @@ import service.results.RegisterResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
-    static final UserService USER_SERVICE;
+    static final Service USER_SERVICE;
 
     static {
         try {
-            USER_SERVICE = new UserService();
+            USER_SERVICE = new Service();
         } catch (ResultExceptions e) {
             throw new RuntimeException(e);
         } catch (DataAccessException e) {

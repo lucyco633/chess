@@ -8,13 +8,13 @@ import org.mindrot.jbcrypt.BCrypt;
 import service.requests.*;
 import service.results.*;
 
-public class UserService {
+public class Service {
 
     public SqlUserDAO sqlUserDAO = new SqlUserDAO();
     public SqlGameDAO sqlGameDAO = new SqlGameDAO();
     public SqlAuthDAO sqlAuthDAO = new SqlAuthDAO();
 
-    public UserService() throws ResultExceptions, DataAccessException {
+    public Service() throws ResultExceptions, DataAccessException {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ResultExceptions,
@@ -38,7 +38,8 @@ public class UserService {
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ResultExceptions.AuthorizationError, ResultExceptions, DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws ResultExceptions.AuthorizationError, ResultExceptions,
+            DataAccessException {
         UserData userData = sqlUserDAO.getUser(loginRequest.username());
         String authToken = "";
         if (userData != null) {
@@ -105,7 +106,8 @@ public class UserService {
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws DataAccessException,
-            ResultExceptions.BadRequestError, ResultExceptions.AuthorizationError, ResultExceptions.AlreadyTakenError, ResultExceptions {
+            ResultExceptions.BadRequestError, ResultExceptions.AuthorizationError, ResultExceptions.AlreadyTakenError,
+            ResultExceptions {
         if (joinGameRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
@@ -152,16 +154,10 @@ public class UserService {
         }
     }
 
-    public EmptyResult clear(EmptyRequest emptyRequest) throws DataAccessException,
-            ResultExceptions {
+    public EmptyResult clear(EmptyRequest emptyRequest) throws ResultExceptions {
         sqlAuthDAO.deleteAllAuth();
         sqlUserDAO.deleteAllUsers();
         sqlGameDAO.deleteAllGames();
-        //if (sqlAuthDAO.authDB.isEmpty() && sqlGameDAO.gameDB.isEmpty() && sqlUserDAO.userDB.isEmpty()) {
-        //return new EmptyResult();
-        //} else {
-        //throw new ResultExceptions("{ \"message\": \"Error: unable to clear data\" }");
-        //}
         return new EmptyResult();
     }
 }
