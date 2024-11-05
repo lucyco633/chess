@@ -22,7 +22,7 @@ public class SqlAuthDAO implements AuthDAO {
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username, json FROM auth WHERE authToken=?";
+            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
@@ -40,15 +40,10 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public String createAuth(String username) throws DataAccessException, ResultExceptions {
-        try {
-            AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
-            var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
-            var json = new Gson().toJson(newAuth);
-            executeCreate(statement, newAuth.authToken(), newAuth.username(), json);
-            return newAuth.authToken();
-        } catch (ResultExceptions e) {
-            throw new ResultExceptions("Could not create authToken");
-        }
+        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
+        var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        executeCreate(statement, newAuth.authToken(), newAuth.username());
+        return newAuth.authToken();
     }
 
 
@@ -65,8 +60,9 @@ public class SqlAuthDAO implements AuthDAO {
 
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var json = rs.getString("json");
-        return new Gson().fromJson(json, AuthData.class);
+        var authToken = rs.getString("authToken");
+        var username = rs.getString("username");
+        return new AuthData(authToken, username);
     }
 
     private void executeDelete(String statement, Object... params) throws ResultExceptions {
