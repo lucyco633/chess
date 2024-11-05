@@ -8,6 +8,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import service.requests.*;
 import service.results.*;
 
+import java.sql.SQLException;
+
 public class Service {
 
     public SqlUserDAO sqlUserDAO = new SqlUserDAO();
@@ -74,7 +76,7 @@ public class Service {
     }
 
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws DataAccessException,
-            ResultExceptions.AuthorizationError, ResultExceptions {
+            ResultExceptions.AuthorizationError, ResultExceptions, SQLException {
         if (listGamesRequest == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
@@ -90,7 +92,7 @@ public class Service {
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException,
-            ResultExceptions.AuthorizationError, ResultExceptions, ResultExceptions.BadRequestError {
+            ResultExceptions.AuthorizationError, ResultExceptions, ResultExceptions.BadRequestError, SQLException {
         if (createGameRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
@@ -154,7 +156,7 @@ public class Service {
         }
     }
 
-    public EmptyResult clear(EmptyRequest emptyRequest) throws ResultExceptions {
+    public EmptyResult clear(EmptyRequest emptyRequest) throws ResultExceptions, SQLException, DataAccessException {
         sqlAuthDAO.deleteAllAuth();
         sqlUserDAO.deleteAllUsers();
         sqlGameDAO.deleteAllGames();

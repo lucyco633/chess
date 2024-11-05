@@ -8,6 +8,8 @@ import service.results.JoinGameResult;
 import service.results.LoginResult;
 import service.results.RegisterResult;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -24,7 +26,7 @@ public class UserServiceTest {
     }
 
     @BeforeEach
-    void clear() throws ResultExceptions, DataAccessException {
+    void clear() throws ResultExceptions, DataAccessException, SQLException {
         var emptyRequest = new EmptyRequest();
         USER_SERVICE.clear(emptyRequest);
     }
@@ -88,7 +90,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void listGamesSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void listGamesSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -105,7 +107,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void listAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void listAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -119,7 +121,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void createGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void createGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -139,7 +141,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void joinGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void joinGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -153,7 +155,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void joinGameTakenError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void joinGameTakenError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -167,7 +169,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void clearSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void clearSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");

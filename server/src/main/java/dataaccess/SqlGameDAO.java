@@ -60,7 +60,7 @@ public class SqlGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData createGame(String gameName) throws DataAccessException, ResultExceptions {
+    public GameData createGame(String gameName) throws DataAccessException, ResultExceptions, SQLException {
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         Random rand = new Random();
         GameData newGame = new GameData(rand.nextInt(100), null, null,
@@ -70,25 +70,23 @@ public class SqlGameDAO implements GameDAO {
         return newGame;
     }
 
-    public void deleteAllGames() throws ResultExceptions {
+    public void deleteAllGames() throws SQLException, DataAccessException {
         var statement = "TRUNCATE game";
         executeDeleteAll(statement);
     }
 
-    public Collection<GameData> listGames() throws ResultExceptions {
+    public Collection<GameData> listGames() throws DataAccessException, SQLException {
         Collection<GameData> games = new ArrayList<>();
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game";
-            try (var ps = conn.prepareStatement(statement)) {
-                try (var rs = ps.executeQuery()) {
-                    while (rs.next()) {
-                        games.add(readGame(rs));
-                    }
+        var conn = DatabaseManager.getConnection();
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game";
+        try (var ps = conn.prepareStatement(statement)) {
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    games.add(readGame(rs));
                 }
             }
-        } catch (Exception e) {
-            throw new ResultExceptions(String.format("Unable to read data: %s", e.getMessage()));
         }
+
         return games;
     }
 
@@ -102,33 +100,24 @@ public class SqlGameDAO implements GameDAO {
         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
-    private void executeCreate(String statement, Object... params) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
-                    else if (param == null) ps.setNull(i + 1, NULL);
-                }
-                ps.executeUpdate();
+    private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
+        var conn = DatabaseManager.getConnection();
+        try (var ps = conn.prepareStatement(statement)) {
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
+                else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                else if (param == null) ps.setNull(i + 1, NULL);
             }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            ps.executeUpdate();
         }
+
     }
 
-    private void executeDeleteAll(String statement) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
+        var conn = DatabaseManager.getConnection();
+        try (var ps = conn.prepareStatement(statement)) {
+            ps.executeUpdate();
         }
     }
 

@@ -9,6 +9,8 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 
 public class ClearHandler implements Route {
 
@@ -17,7 +19,7 @@ public class ClearHandler implements Route {
     public ClearHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var emptyRequest = new Gson().fromJson(request.body(), EmptyRequest.class);
         try {
             var emptyResult = userService.clear(emptyRequest);

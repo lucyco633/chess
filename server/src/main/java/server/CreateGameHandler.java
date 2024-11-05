@@ -9,6 +9,8 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 
 public class CreateGameHandler implements Route {
     public Service userService = new Service();
@@ -16,7 +18,7 @@ public class CreateGameHandler implements Route {
     public CreateGameHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var gameName = new Gson().fromJson(request.body(), GameName.class);
         var createGameRequest = new CreateGameRequest(gameName.gameName(), request.headers("Authorization"));
         try {

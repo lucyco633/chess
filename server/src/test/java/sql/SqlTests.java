@@ -11,12 +11,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.ResultExceptions;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class sqlTests {
+public class SqlTests {
 
     static final SqlAuthDAO SQL_AUTH_DAO;
     static final SqlGameDAO SQL_GAME_DAO;
@@ -47,7 +48,7 @@ public class sqlTests {
     }
 
     @BeforeEach
-    void clear() throws ResultExceptions, DataAccessException {
+    void clear() throws ResultExceptions, DataAccessException, SQLException {
         SQL_AUTH_DAO.deleteAllAuth();
         SQL_GAME_DAO.deleteAllGames();
         SQL_USER_DAO.deleteAllUsers();
@@ -109,27 +110,27 @@ public class sqlTests {
     }
 
     @Test
-    void createGameSuccess() throws ResultExceptions, DataAccessException {
+    void createGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData gameData = SQL_GAME_DAO.createGame("Game 1");
         assertNotNull(gameData);
     }
 
     @Test
-    void getGameSuccess() throws ResultExceptions, DataAccessException {
+    void getGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
         GameData gameData = SQL_GAME_DAO.getGame(newGame.gameID());
         assertNotNull(gameData);
     }
 
     @Test
-    void getGameFail() throws ResultExceptions, DataAccessException {
+    void getGameFail() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
         GameData gameData = SQL_GAME_DAO.getGame(1);
         assertNull(gameData);
     }
 
     @Test
-    void updateGameSuccess() throws ResultExceptions, DataAccessException {
+    void updateGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
         SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game());
         GameData actualGame = SQL_GAME_DAO.getGame(newGame.gameID());
@@ -138,7 +139,7 @@ public class sqlTests {
     }
 
     @Test
-    void listGameSuccess() throws ResultExceptions, DataAccessException {
+    void listGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
         GameData newGame2 = SQL_GAME_DAO.createGame("Game 2");
         Collection<GameData> listGamesActual = SQL_GAME_DAO.listGames();

@@ -4,6 +4,8 @@ import chess.ChessGame;
 import model.GameData;
 import service.ResultExceptions;
 
+import java.sql.SQLException;
+
 
 public interface GameDAO {
     GameData getGame(int gameID) throws DataAccessException, ResultExceptions;
@@ -11,6 +13,6 @@ public interface GameDAO {
     void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game)
             throws DataAccessException;
 
-    GameData createGame(String gameName) throws DataAccessException, ResultExceptions;
+    GameData createGame(String gameName) throws DataAccessException, ResultExceptions, SQLException;
 
 }

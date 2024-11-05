@@ -9,13 +9,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 public class ListGamesHandler implements Route {
     public Service userService = new Service();
 
     public ListGamesHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var listGameRequest = new ListGamesRequest(request.headers("Authorization"));
         try {
             var listGameResult = userService.listGames(listGameRequest);
