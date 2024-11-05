@@ -6,13 +6,11 @@ import service.ResultExceptions;
 
 import java.sql.SQLException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.sql.*;
 import java.util.UUID;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
+
 
 public class SqlAuthDAO implements AuthDAO {
 
@@ -24,7 +22,7 @@ public class SqlAuthDAO implements AuthDAO {
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+            var statement = "SELECT authToken, username, json FROM auth WHERE authToken=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
@@ -42,10 +40,15 @@ public class SqlAuthDAO implements AuthDAO {
 
     @Override
     public String createAuth(String username) throws DataAccessException, ResultExceptions {
-        AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
-        var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
-        var json = new Gson().toJson(newAuth);
-        return executeCreate(statement, newAuth.authToken(), newAuth.username(), json);
+        try {
+            AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
+            var statement = "INSERT INTO auth (authToken, username, json) VALUES (?, ?, ?)";
+            var json = new Gson().toJson(newAuth);
+            executeCreate(statement, newAuth.authToken(), newAuth.username(), json);
+            return newAuth.authToken();
+        } catch (ResultExceptions e) {
+            throw new ResultExceptions("Could not create authToken");
+        }
     }
 
 
@@ -62,11 +65,9 @@ public class SqlAuthDAO implements AuthDAO {
 
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
-        var authToken = rs.getString("authToken");
         var json = rs.getString("json");
         return new Gson().fromJson(json, AuthData.class);
     }
-
 
     private void executeDelete(String statement, Object... params) throws ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
@@ -85,21 +86,14 @@ public class SqlAuthDAO implements AuthDAO {
     }
 
 
-    private String executeCreate(String statement, Object... params) throws ResultExceptions {
+    private void executeCreate(String statement, Object... params) throws ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
+            try (var ps = conn.prepareStatement(statement)) {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
                 }
                 ps.executeUpdate();
-
-                var rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getString(1);
-                }
-
-                return "";
             }
         } catch (SQLException e) {
             throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
@@ -125,11 +119,8 @@ public class SqlAuthDAO implements AuthDAO {
             CREATE TABLE IF NOT EXISTS  auth (
               `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
-              `json` TEXT DEFAULT NULL,
-              PRIMARY KEY(authToken),
-              INDEX(authToken),
-              INDEX(username)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+              PRIMARY KEY(authToken)
+            )
             """
     };
 

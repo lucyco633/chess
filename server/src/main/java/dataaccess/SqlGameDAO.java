@@ -3,8 +3,6 @@ package dataaccess;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
-import model.UserData;
-import org.mindrot.jbcrypt.BCrypt;
 import service.ResultExceptions;
 
 import java.sql.ResultSet;
@@ -12,6 +10,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
+
+import static java.sql.Types.NULL;
 
 public class SqlGameDAO implements GameDAO {
 
@@ -49,7 +49,7 @@ public class SqlGameDAO implements GameDAO {
         GameData newGame = new GameData(rand.nextInt(100), null, null, gameName, new ChessGame());
         var json = new Gson().toJson(newGame);
         var gameJson = new Gson().toJson(newGame.game());
-        executeCreate(statement, newGame.gameID(), newGame.whiteUsername(), newGame.blackUsername(), newGame.gameName(), gameJson, json);
+        executeCreate(statement, newGame.gameID(), null, null, newGame.gameName(), gameJson, json);
         return newGame;
     }
 
@@ -87,6 +87,8 @@ public class SqlGameDAO implements GameDAO {
                 for (var i = 0; i < params.length; i++) {
                     var param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
+                    else if (param instanceof Integer p) ps.setInt(i + 1, p);
+                    else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
             }
@@ -112,14 +114,14 @@ public class SqlGameDAO implements GameDAO {
     private final String[] createGameStatements = {
             """
             CREATE TABLE IF NOT EXISTS  game (
-              `gameID` int NOT NULL AUTO_INCREMENT,
-              `whiteUsername` varchar(256) NOT NULL,
-              `blackUsername` varchar(256) NOT NULL,
+              `gameID` int NOT NULL,
+              `whiteUsername` varchar(256) NULL DEFAULT NULL,
+              `blackUsername` varchar(256) NULL DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
               `game` TEXT DEFAULT NULL,
               `json` TEXT DEFAULT NULL,
               INDEX(gameID)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            )
             """
     };
 

@@ -20,8 +20,4 @@ public class MemoryUserDAO implements UserDAO {
         userDB.put(username, newUser);
     }
 
-    @Override
-    public void deleteUser(String username) {
-        userDB.remove(username);
-    }
 }

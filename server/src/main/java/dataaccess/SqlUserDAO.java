@@ -41,31 +41,9 @@ public class SqlUserDAO implements UserDAO {
         executeCreate(statement, newUser.username(), newUser.password(), newUser.email(), json);
     }
 
-    @Override
-    public void deleteUser(String username) throws DataAccessException, ResultExceptions {
-        var statement = "DELETE FROM user WHERE username=?";
-        executeDelete(statement, username);
-    }
-
     public void deleteAllUsers() throws ResultExceptions {
         var statement = "TRUNCATE user";
         executeDeleteAll(statement);
-    }
-
-    private void executeDelete(String statement, Object... params) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void executeCreate(String statement, Object... params) throws ResultExceptions {
@@ -97,7 +75,6 @@ public class SqlUserDAO implements UserDAO {
     }
 
     private UserData readUser(ResultSet rs) throws SQLException {
-        var username = rs.getString("username");
         var json = rs.getString("json");
         return new Gson().fromJson(json, UserData.class);
     }
