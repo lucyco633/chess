@@ -375,6 +375,23 @@ public class ChessPiece {
     }
 
 
+    public void validKingMoves(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, Collection<ChessMove> valid) {
+        if ((vertical == 1 && horizontal == 1) | (vertical == 1 && horizontal == 0) |
+                (vertical == 1 && horizontal == -1) | (vertical == -1 && horizontal == -1) |
+                (vertical == -1 && horizontal == 0) | (vertical == -1 && horizontal == 1) |
+                (vertical == 0 && horizontal == 1) | (vertical == 1 && horizontal == 0) |
+                (vertical == 0 && horizontal == -1) | (vertical == -1 && horizontal == 0)) {
+            if ((myPosition.getColumn() + horizontal) > 0 && (myPosition.getColumn() + horizontal) <= 8 &&
+                    (myPosition.getRow() + vertical) > 0 && (myPosition.getRow() + vertical) <= 8) {
+                ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, null);
+                if (okayMove != null) {
+                    valid.add(okayMove);
+                }
+            }
+        }
+    }
+
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -386,26 +403,16 @@ public class ChessPiece {
         Collection<ChessMove> validMoves = new ArrayList<ChessMove>();
         switch (getPieceType()) {
             case KING:
-                //add while statement so that stop before 8?
-                ArrayList<Integer> horiz = new ArrayList<Integer>();
-                horiz.add(-1);
-                horiz.add(0);
-                horiz.add(1);
-                ArrayList<Integer> vert = new ArrayList<Integer>();
-                vert.add(-1);
-                vert.add(0);
-                vert.add(1);
-                for (Integer v : vert) {
-                    for (Integer h : horiz) {
-                        if (((myPosition.getRow() + v) <= 8) && ((myPosition.getColumn() + h) <= 8) &&
-                                ((myPosition.getRow() + v) > 0) && ((myPosition.getColumn() + h) > 0)) {
-                            ChessMove okayMove = checkMove(board, myPosition, v, h, null);
-                            if (okayMove != null) {
-                                validMoves.add(okayMove);
-                            }
-                        }
-                    }
-                }
+                validKingMoves(board, myPosition, 1, 1, validMoves);
+                validKingMoves(board, myPosition, 1, 0, validMoves);
+                validKingMoves(board, myPosition, 1, -1, validMoves);
+                validKingMoves(board, myPosition, -1, 1, validMoves);
+                validKingMoves(board, myPosition, -1, 0, validMoves);
+                validKingMoves(board, myPosition, -1, -1, validMoves);
+                validKingMoves(board, myPosition, 0, 1, validMoves);
+                validKingMoves(board, myPosition, 1, 0, validMoves);
+                validKingMoves(board, myPosition, 0, -1, validMoves);
+                validKingMoves(board, myPosition, -1, 1, validMoves);
                 break;
 
             case QUEEN:

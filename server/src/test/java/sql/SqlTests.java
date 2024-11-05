@@ -55,55 +55,55 @@ public class SqlTests {
     }
 
     @Test
-    void getAuthSuccess() throws ResultExceptions, DataAccessException {
+    void getAuthSuccess() throws ResultExceptions, DataAccessException, SQLException {
         String authToken = SQL_AUTH_DAO.createAuth("lucyco7");
         AuthData authData = SQL_AUTH_DAO.getAuth(authToken);
         assertNotNull(authData);
     }
 
     @Test
-    void getAuthFail() throws ResultExceptions, DataAccessException {
+    void getAuthFail() throws ResultExceptions, DataAccessException, SQLException {
         AuthData authData = SQL_AUTH_DAO.getAuth("hello");
         assertNull(authData);
     }
 
     @Test
-    void createAuthSuccess() throws ResultExceptions, DataAccessException {
+    void createAuthSuccess() throws ResultExceptions, DataAccessException, SQLException {
         String authToken = SQL_AUTH_DAO.createAuth("lucyco7");
         AuthData authData = SQL_AUTH_DAO.getAuth(authToken);
         assertNotNull(authData);
     }
 
     @Test
-    void deleteAuthSuccess() throws ResultExceptions, DataAccessException {
+    void deleteAuthSuccess() throws ResultExceptions, DataAccessException, SQLException {
         String authToken = SQL_AUTH_DAO.createAuth("lucyco7");
         SQL_AUTH_DAO.deleteAuth(authToken);
         assertNull(SQL_AUTH_DAO.getAuth(authToken));
     }
 
     @Test
-    void deleteAuthFail() throws ResultExceptions, DataAccessException {
+    void deleteAuthFail() throws ResultExceptions, DataAccessException, SQLException {
         String authToken = SQL_AUTH_DAO.createAuth("lucyco7");
         SQL_AUTH_DAO.deleteAuth("hello");
         assertNotNull(SQL_AUTH_DAO.getAuth(authToken));
     }
 
     @Test
-    void getUserSuccess() throws ResultExceptions, DataAccessException {
+    void getUserSuccess() throws ResultExceptions, DataAccessException, SQLException {
         SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
         UserData userData = SQL_USER_DAO.getUser("lucyco7");
         assertNotNull(userData);
     }
 
     @Test
-    void getUserFail() throws ResultExceptions, DataAccessException {
+    void getUserFail() throws ResultExceptions, DataAccessException, SQLException {
         SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
         UserData userData = SQL_USER_DAO.getUser("lucy");
         assertNull(userData);
     }
 
     @Test
-    void createUserSuccess() throws ResultExceptions, DataAccessException {
+    void createUserSuccess() throws ResultExceptions, DataAccessException, SQLException {
         SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
         UserData userData = SQL_USER_DAO.getUser("lucyco7");
         assertNotNull(userData);

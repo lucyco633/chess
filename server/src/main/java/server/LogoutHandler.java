@@ -9,13 +9,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 public class LogoutHandler implements Route {
     public Service userService = new Service();
 
     public LogoutHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var logoutRequest = new LogoutRequest(request.headers("Authorization"));
         try {
             var logoutResult = userService.logout(logoutRequest);

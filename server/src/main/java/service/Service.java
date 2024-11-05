@@ -20,7 +20,7 @@ public class Service {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ResultExceptions,
-            ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException {
+            ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, SQLException {
         if (registerRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
@@ -41,7 +41,7 @@ public class Service {
     }
 
     public LoginResult login(LoginRequest loginRequest) throws ResultExceptions.AuthorizationError, ResultExceptions,
-            DataAccessException {
+            DataAccessException, SQLException {
         UserData userData = sqlUserDAO.getUser(loginRequest.username());
         String authToken = "";
         if (userData != null) {
@@ -59,7 +59,7 @@ public class Service {
     }
 
     public EmptyResult logout(LogoutRequest logoutRequest) throws DataAccessException,
-            ResultExceptions.AuthorizationError, ResultExceptions {
+            ResultExceptions.AuthorizationError, ResultExceptions, SQLException {
         if (logoutRequest == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
@@ -109,7 +109,7 @@ public class Service {
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws DataAccessException,
             ResultExceptions.BadRequestError, ResultExceptions.AuthorizationError, ResultExceptions.AlreadyTakenError,
-            ResultExceptions {
+            ResultExceptions, SQLException {
         if (joinGameRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }

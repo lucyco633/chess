@@ -9,13 +9,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 public class RegisterHandler implements Route {
     public Service userService = new Service();
 
     public RegisterHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var registerRequest = new Gson().fromJson(request.body(), RegisterRequest.class);
         try {
             var registerResult = userService.register(registerRequest);

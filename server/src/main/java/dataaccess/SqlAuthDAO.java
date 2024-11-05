@@ -17,26 +17,23 @@ public class SqlAuthDAO implements AuthDAO {
 
 
     @Override
-    public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.setString(1, authToken);
-                try (var rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        return readAuth(rs);
-                    }
+    public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions, SQLException {
+        var conn = DatabaseManager.getConnection();
+        var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
+        try (var ps = conn.prepareStatement(statement)) {
+            ps.setString(1, authToken);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return readAuth(rs);
                 }
             }
-        } catch (Exception e) {
-            throw new ResultExceptions(String.format("Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
 
 
     @Override
-    public String createAuth(String username) throws DataAccessException, ResultExceptions {
+    public String createAuth(String username) throws DataAccessException, ResultExceptions, SQLException {
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
         var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
         executeCreate(statement, newAuth.authToken(), newAuth.username());
@@ -45,12 +42,12 @@ public class SqlAuthDAO implements AuthDAO {
 
 
     @Override
-    public void deleteAuth(String authToken) throws DataAccessException, ResultExceptions {
+    public void deleteAuth(String authToken) throws DataAccessException, SQLException {
         var statement = "DELETE FROM auth WHERE authToken=?";
         executeDelete(statement, authToken);
     }
 
-    public void deleteAllAuth() throws ResultExceptions {
+    public void deleteAllAuth() throws SQLException, DataAccessException {
         var statement = "TRUNCATE auth";
         executeDeleteAll(statement);
     }
@@ -62,48 +59,33 @@ public class SqlAuthDAO implements AuthDAO {
         return new AuthData(authToken, username);
     }
 
-    private void executeDelete(String statement, Object... params) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                }
-                ps.executeUpdate();
+    private void executeDelete(String statement, Object... params) throws DataAccessException, SQLException {
+        var conn = DatabaseManager.getConnection();
+        try (var ps = conn.prepareStatement(statement)) {
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
             }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            ps.executeUpdate();
         }
     }
 
 
-    private void executeCreate(String statement, Object... params) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                for (var i = 0; i < params.length; i++) {
-                    var param = params[i];
-                    if (param instanceof String p) ps.setString(i + 1, p);
-                }
-                ps.executeUpdate();
+    private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
+        var conn = DatabaseManager.getConnection();
+        try (var ps = conn.prepareStatement(statement)) {
+            for (var i = 0; i < params.length; i++) {
+                var param = params[i];
+                if (param instanceof String p) ps.setString(i + 1, p);
             }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            ps.executeUpdate();
         }
     }
 
-    private void executeDeleteAll(String statement) throws ResultExceptions {
-        try (var conn = DatabaseManager.getConnection()) {
-            try (var ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+    private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
+        var conn = DatabaseManager.getConnection();
+        try (var ps = conn.prepareStatement(statement)) {
+            ps.executeUpdate();
         }
     }
 

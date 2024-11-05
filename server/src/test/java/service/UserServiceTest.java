@@ -32,7 +32,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void registerSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException {
+    void registerSuccess() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var actual = USER_SERVICE.register(registerRequest);
         var expected = new RegisterResult("lucyco7", "1");
@@ -41,13 +42,14 @@ public class UserServiceTest {
     }
 
     @Test
-    void registerBadRequest() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException {
+    void registerBadRequest() {
         var registerRequest = new RegisterRequest(null, "helloworld", "lucyco7@byu.edu");
         assertThrows(ResultExceptions.BadRequestError.class, () -> USER_SERVICE.register(registerRequest));
     }
 
     @Test
-    void loginSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void loginSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError,
+            DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -58,7 +60,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void loginAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void loginAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("wrongname", "helloworld");
@@ -66,21 +69,21 @@ public class UserServiceTest {
     }
 
     @Test
-    void logoutSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void logoutSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError,
+            DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
         var loggedIn = USER_SERVICE.login(loginRequest);
         var logoutRequest = new LogoutRequest(loggedIn.authToken());
         var loggedOut = USER_SERVICE.logout(logoutRequest);
-        //how to test for any int?
-        //assert not null authToken
         var foundAuth = USER_SERVICE.sqlAuthDAO.getAuth(loggedIn.authToken());
         assertNull(foundAuth);
     }
 
     @Test
-    void logoutAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void logoutAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -90,7 +93,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void listGamesSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void listGamesSuccess() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError,
+            SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -107,7 +112,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void listAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void listAuthorizationError() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError,
+            SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -121,7 +128,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void createGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void createGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError,
+            SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -132,7 +141,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void createGameBadRequest() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError {
+    void createGameBadRequest() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -141,7 +151,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void joinGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void joinGameSuccess() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError,
+            SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -155,7 +167,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void joinGameTakenError() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void joinGameTakenError() throws ResultExceptions, ResultExceptions.BadRequestError,
+            ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError,
+            SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");
@@ -169,7 +183,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void clearSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException, ResultExceptions.AuthorizationError, SQLException {
+    void clearSuccess() throws ResultExceptions, ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError,
+            DataAccessException, ResultExceptions.AuthorizationError, SQLException {
         var registerRequest = new RegisterRequest("lucyco7", "helloworld", "lucyco7@byu.edu");
         var registered = USER_SERVICE.register(registerRequest);
         var loginRequest = new LoginRequest("lucyco7", "helloworld");

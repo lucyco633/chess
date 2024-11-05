@@ -9,13 +9,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 public class LoginHandler implements Route {
     public Service userService = new Service();
 
     public LoginHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class);
         try {
             var loginResult = userService.login(loginRequest);

@@ -9,13 +9,15 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.sql.SQLException;
+
 public class JoinGameHandler implements Route {
     public Service userService = new Service();
 
     public JoinGameHandler() throws ResultExceptions, DataAccessException {
     }
 
-    public Object handle(Request request, Response response) throws DataAccessException {
+    public Object handle(Request request, Response response) throws DataAccessException, SQLException {
         var joinGameInfo = new Gson().fromJson(request.body(), JoinGameInfo.class);
         var joinGameRequest = new JoinGameRequest(joinGameInfo.playerColor(), joinGameInfo.gameID(),
                 request.headers("Authorization"));
