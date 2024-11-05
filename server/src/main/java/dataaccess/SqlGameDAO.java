@@ -20,7 +20,7 @@ public class SqlGameDAO implements GameDAO {
     }
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException, ResultExceptions {
+    public GameData getGame(int gameID) throws ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, json FROM game WHERE gameID=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -38,9 +38,11 @@ public class SqlGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException {
+    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game)
+            throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement("UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=?, json=? WHERE gameID=?")) {
+            try (var preparedStatement = conn.prepareStatement
+                    ("UPDATE game SET whiteUsername=?, blackUsername=?, gameName=?, game=?, json=? WHERE gameID=?")) {
                 preparedStatement.setString(1, whiteUsername);
                 preparedStatement.setString(2, blackUsername);
                 preparedStatement.setString(3, gameName);
@@ -61,7 +63,8 @@ public class SqlGameDAO implements GameDAO {
     public GameData createGame(String gameName) throws DataAccessException, ResultExceptions {
         var statement = "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?, ?)";
         Random rand = new Random();
-        GameData newGame = new GameData(rand.nextInt(100), null, null, gameName, new ChessGame());
+        GameData newGame = new GameData(rand.nextInt(100), null, null,
+                gameName, new ChessGame());
         var gameJson = new Gson().toJson(newGame.game());
         executeCreate(statement, newGame.gameID(), null, null, newGame.gameName(), gameJson);
         return newGame;

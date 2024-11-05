@@ -13,12 +13,12 @@ public class MemoryGameDAO implements GameDAO {
     public static HashMap<Integer, GameData> gameDB = new HashMap<>();
 
     @Override
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         return gameDB.get(gameID);
     }
 
     @Override
-    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) throws DataAccessException {
+    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
         GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
         gameDB.put(gameID, updatedGame);
     }

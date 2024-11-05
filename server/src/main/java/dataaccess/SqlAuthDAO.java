@@ -1,6 +1,5 @@
 package dataaccess;
 
-import com.google.gson.Gson;
 import model.AuthData;
 import service.ResultExceptions;
 
@@ -8,8 +7,6 @@ import java.sql.SQLException;
 
 import java.sql.*;
 import java.util.UUID;
-
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 
 public class SqlAuthDAO implements AuthDAO {

@@ -15,7 +15,7 @@ public class SqlUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException, ResultExceptions {
+    public UserData getUser(String username) throws ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, password, email, json FROM user WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
@@ -33,7 +33,7 @@ public class SqlUserDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(String username, String password, String email) throws DataAccessException, ResultExceptions {
+    public void createUser(String username, String password, String email) throws ResultExceptions {
         var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         UserData newUser = new UserData(username, hashedPassword, email);
