@@ -14,6 +14,9 @@ public class ClearHandler implements Route {
 
     public UserService userService = new UserService();
 
+    public ClearHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var emptyRequest = new Gson().fromJson(request.body(), EmptyRequest.class);
         try {

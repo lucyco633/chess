@@ -8,16 +8,17 @@ import org.mindrot.jbcrypt.BCrypt;
 import service.requests.*;
 import service.results.*;
 
-import java.util.Objects;
-
 public class UserService {
 
-    public MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
-    public MemoryGameDAO memoryGameDAO = new MemoryGameDAO();
-    public MemoryAuthDAO memoryAuthDAO = new MemoryAuthDAO();
+    public SqlUserDAO sqlUserDAO = new SqlUserDAO();
+    public SqlGameDAO sqlGameDAO = new SqlGameDAO();
+    public SqlAuthDAO sqlAuthDAO = new SqlAuthDAO();
+
+    public UserService() throws ResultExceptions, DataAccessException {
+    }
 
     public RegisterResult register(RegisterRequest registerRequest) throws ResultExceptions,
-            ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError {
+            ResultExceptions.BadRequestError, ResultExceptions.AlreadyTakenError, DataAccessException {
         if (registerRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
@@ -25,25 +26,25 @@ public class UserService {
                 registerRequest.email() == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
-        if (memoryUserDAO.getUser(registerRequest.username()) != null) {
+        if (sqlUserDAO.getUser(registerRequest.username()) != null) {
             throw new ResultExceptions.AlreadyTakenError("{ \"message\": \"Error: already taken\" }");
         }
-        if (memoryUserDAO.getUser(registerRequest.username()) == null) {
-            memoryUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
-            String authToken = memoryAuthDAO.createAuth(registerRequest.username());
+        if (sqlUserDAO.getUser(registerRequest.username()) == null) {
+            sqlUserDAO.createUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            String authToken = sqlAuthDAO.createAuth(registerRequest.username());
             return new RegisterResult(registerRequest.username(), authToken);
         } else {
             throw new ResultExceptions("{ \"message\": \"Error: unable to register\" }");
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws ResultExceptions.AuthorizationError, ResultExceptions {
-        UserData userData = memoryUserDAO.getUser(loginRequest.username());
+    public LoginResult login(LoginRequest loginRequest) throws ResultExceptions.AuthorizationError, ResultExceptions, DataAccessException {
+        UserData userData = sqlUserDAO.getUser(loginRequest.username());
         String authToken = "";
         if (userData != null) {
             //changed to check hashed password
             if (BCrypt.checkpw(loginRequest.password(), userData.password())) {
-                authToken = memoryAuthDAO.createAuth(loginRequest.username());
+                authToken = sqlAuthDAO.createAuth(loginRequest.username());
                 return new LoginResult(loginRequest.username(), authToken);
             }
         }
@@ -60,11 +61,11 @@ public class UserService {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
         String authToken = logoutRequest.authToken();
-        if (memoryAuthDAO.getAuth(authToken) != null) {
-            memoryAuthDAO.deleteAuth(authToken);
+        if (sqlAuthDAO.getAuth(authToken) != null) {
+            sqlAuthDAO.deleteAuth(authToken);
             return new EmptyResult();
         }
-        if (memoryAuthDAO.getAuth(authToken) == null) {
+        if (sqlAuthDAO.getAuth(authToken) == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         } else {
             throw new ResultExceptions("{ \"message\": \"Error: unable to logout\" }");
@@ -76,12 +77,12 @@ public class UserService {
         if (listGamesRequest == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
-        AuthData authData = memoryAuthDAO.getAuth(listGamesRequest.authToken());
+        AuthData authData = sqlAuthDAO.getAuth(listGamesRequest.authToken());
         if (authData == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
         if (authData != null) {
-            return new ListGamesResult(memoryGameDAO.gameDB.values());
+            return new ListGamesResult(sqlGameDAO.listGames());
         } else {
             throw new ResultExceptions("{ \"message\": \"Error: unable to list games\" }");
         }
@@ -92,11 +93,11 @@ public class UserService {
         if (createGameRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
-        if (memoryAuthDAO.getAuth(createGameRequest.authToken()) != null) {
-            GameData newGame = memoryGameDAO.createGame(createGameRequest.gameName());
+        if (sqlAuthDAO.getAuth(createGameRequest.authToken()) != null) {
+            GameData newGame = sqlGameDAO.createGame(createGameRequest.gameName());
             return new CreateGameResult(newGame.gameID());
         }
-        if (memoryAuthDAO.getAuth(createGameRequest.authToken()) == null) {
+        if (sqlAuthDAO.getAuth(createGameRequest.authToken()) == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         } else {
             throw new ResultExceptions("{ \"message\": \"Error: unable to create game\" }");
@@ -108,7 +109,7 @@ public class UserService {
         if (joinGameRequest == null) {
             throw new ResultExceptions.BadRequestError("{ \"message\": \"Error: bad request\" }");
         }
-        AuthData authData = memoryAuthDAO.getAuth(joinGameRequest.authToken());
+        AuthData authData = sqlAuthDAO.getAuth(joinGameRequest.authToken());
         if (authData == null) {
             throw new ResultExceptions.AuthorizationError("{ \"message\": \"Error: unauthorized\" }");
         }
@@ -124,25 +125,25 @@ public class UserService {
         if (authData != null) {
             JoinGameResult joinGameResult = null;
             if ((joinGameRequest.playerColor().equals("BLACK") &&
-                    memoryGameDAO.getGame(joinGameRequest.gameID()).blackUsername() != null) ||
+                    sqlGameDAO.getGame(joinGameRequest.gameID()).blackUsername() != null) ||
                     (joinGameRequest.playerColor().equals("WHITE") &&
-                            memoryGameDAO.getGame(joinGameRequest.gameID()).whiteUsername() != null)) {
+                            sqlGameDAO.getGame(joinGameRequest.gameID()).whiteUsername() != null)) {
                 throw new ResultExceptions.AlreadyTakenError("{ \"message\": \"Error: already taken\" }");
             }
             if (joinGameRequest.playerColor().equals("BLACK")) {
-                memoryGameDAO.updateGame(joinGameRequest.gameID(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).whiteUsername(),
-                        memoryAuthDAO.getAuth(joinGameRequest.authToken()).username(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).gameName(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).game());
+                sqlGameDAO.updateGame(joinGameRequest.gameID(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).whiteUsername(),
+                        sqlAuthDAO.getAuth(joinGameRequest.authToken()).username(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).gameName(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).game());
                 joinGameResult = new JoinGameResult(joinGameRequest.playerColor(), joinGameRequest.gameID());
             }
             if (joinGameRequest.playerColor().equals("WHITE")) {
-                memoryGameDAO.updateGame(joinGameRequest.gameID(),
-                        memoryAuthDAO.getAuth(joinGameRequest.authToken()).username(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).blackUsername(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).gameName(),
-                        memoryGameDAO.getGame(joinGameRequest.gameID()).game());
+                sqlGameDAO.updateGame(joinGameRequest.gameID(),
+                        sqlAuthDAO.getAuth(joinGameRequest.authToken()).username(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).blackUsername(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).gameName(),
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).game());
                 joinGameResult = new JoinGameResult(joinGameRequest.playerColor(), joinGameRequest.gameID());
             }
             return joinGameResult;
@@ -153,13 +154,14 @@ public class UserService {
 
     public EmptyResult clear(EmptyRequest emptyRequest) throws DataAccessException,
             ResultExceptions {
-        memoryAuthDAO.authDB.clear();
-        memoryUserDAO.userDB.clear();
-        memoryGameDAO.gameDB.clear();
-        if (memoryAuthDAO.authDB.isEmpty() && memoryGameDAO.gameDB.isEmpty() && memoryUserDAO.userDB.isEmpty()) {
-            return new EmptyResult();
-        } else {
-            throw new ResultExceptions("{ \"message\": \"Error: unable to clear data\" }");
-        }
+        sqlAuthDAO.deleteAllAuth();
+        sqlUserDAO.deleteAllUsers();
+        sqlGameDAO.deleteAllGames();
+        //if (sqlAuthDAO.authDB.isEmpty() && sqlGameDAO.gameDB.isEmpty() && sqlUserDAO.userDB.isEmpty()) {
+        //return new EmptyResult();
+        //} else {
+        //throw new ResultExceptions("{ \"message\": \"Error: unable to clear data\" }");
+        //}
+        return new EmptyResult();
     }
 }

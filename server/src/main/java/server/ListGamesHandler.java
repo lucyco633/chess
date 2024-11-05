@@ -12,6 +12,9 @@ import spark.Route;
 public class ListGamesHandler implements Route {
     public UserService userService = new UserService();
 
+    public ListGamesHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var listGameRequest = new ListGamesRequest(request.headers("Authorization"));
         try {

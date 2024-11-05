@@ -12,6 +12,9 @@ import spark.Route;
 public class LogoutHandler implements Route {
     public UserService userService = new UserService();
 
+    public LogoutHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var logoutRequest = new LogoutRequest(request.headers("Authorization"));
         try {

@@ -17,7 +17,7 @@ public class SqlUserDAO implements UserDAO {
     @Override
     public UserData getUser(String username) throws DataAccessException, ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, password, email FROM user WHERE username=?";
+            var statement = "SELECT username, password, email, json FROM user WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
@@ -47,6 +47,11 @@ public class SqlUserDAO implements UserDAO {
         executeDelete(statement, username);
     }
 
+    public void deleteAllUsers() throws ResultExceptions {
+        var statement = "TRUNCATE user";
+        executeDeleteAll(statement);
+    }
+
     private void executeDelete(String statement, Object... params) throws ResultExceptions {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
@@ -70,6 +75,18 @@ public class SqlUserDAO implements UserDAO {
                     var param = params[i];
                     if (param instanceof String p) ps.setString(i + 1, p);
                 }
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void executeDeleteAll(String statement) throws ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {

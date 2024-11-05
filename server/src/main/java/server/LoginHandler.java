@@ -12,6 +12,9 @@ import spark.Route;
 public class LoginHandler implements Route {
     public UserService userService = new UserService();
 
+    public LoginHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var loginRequest = new Gson().fromJson(request.body(), LoginRequest.class);
         try {

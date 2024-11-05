@@ -12,6 +12,9 @@ import spark.Route;
 public class JoinGameHandler implements Route {
     public UserService userService = new UserService();
 
+    public JoinGameHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var joinGameInfo = new Gson().fromJson(request.body(), JoinGameInfo.class);
         var joinGameRequest = new JoinGameRequest(joinGameInfo.playerColor(), joinGameInfo.gameID(),

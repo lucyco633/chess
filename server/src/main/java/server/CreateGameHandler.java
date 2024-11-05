@@ -13,6 +13,9 @@ import spark.Route;
 public class CreateGameHandler implements Route {
     public UserService userService = new UserService();
 
+    public CreateGameHandler() throws ResultExceptions, DataAccessException {
+    }
+
     public Object handle(Request request, Response response) throws DataAccessException, ResultExceptions {
         var gameName = new Gson().fromJson(request.body(), GameName.class);
         var createGameRequest = new CreateGameRequest(gameName.gameName(), request.headers("Authorization"));

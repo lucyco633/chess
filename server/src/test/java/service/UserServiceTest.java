@@ -11,7 +11,17 @@ import service.results.RegisterResult;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
-    static final UserService USER_SERVICE = new UserService();
+    static final UserService USER_SERVICE;
+
+    static {
+        try {
+            USER_SERVICE = new UserService();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     void clear() throws ResultExceptions, DataAccessException {
@@ -63,7 +73,7 @@ public class UserServiceTest {
         var loggedOut = USER_SERVICE.logout(logoutRequest);
         //how to test for any int?
         //assert not null authToken
-        var foundAuth = USER_SERVICE.memoryAuthDAO.getAuth(loggedIn.authToken());
+        var foundAuth = USER_SERVICE.sqlAuthDAO.getAuth(loggedIn.authToken());
         assertNull(foundAuth);
     }
 
@@ -90,8 +100,8 @@ public class UserServiceTest {
         var listGamesRequest = new ListGamesRequest(loggedIn.authToken());
         var actual = USER_SERVICE.listGames(listGamesRequest);
         assertEquals(2, actual.games().size());
-        assertTrue(actual.games().contains(USER_SERVICE.memoryGameDAO.getGame(createGame1.gameID())));
-        assertTrue(actual.games().contains(USER_SERVICE.memoryGameDAO.getGame(createGame2.gameID())));
+        assertTrue(actual.games().contains(USER_SERVICE.sqlGameDAO.getGame(createGame1.gameID())));
+        assertTrue(actual.games().contains(USER_SERVICE.sqlGameDAO.getGame(createGame2.gameID())));
     }
 
     @Test
@@ -168,6 +178,6 @@ public class UserServiceTest {
         var actual = USER_SERVICE.joinGame(joinGameRequest);
         var clearRequest = new EmptyRequest();
         USER_SERVICE.clear(clearRequest);
-        assertNull(USER_SERVICE.memoryAuthDAO.getAuth(loggedIn.authToken()));
+        assertNull(USER_SERVICE.sqlAuthDAO.getAuth(loggedIn.authToken()));
     }
 }

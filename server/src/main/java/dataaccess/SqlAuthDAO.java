@@ -55,6 +55,11 @@ public class SqlAuthDAO implements AuthDAO {
         executeDelete(statement, authToken);
     }
 
+    public void deleteAllAuth() throws ResultExceptions {
+        var statement = "TRUNCATE auth";
+        executeDeleteAll(statement);
+    }
+
 
     private AuthData readAuth(ResultSet rs) throws SQLException {
         var authToken = rs.getString("authToken");
@@ -103,6 +108,18 @@ public class SqlAuthDAO implements AuthDAO {
         }
     }
 
+    private void executeDeleteAll(String statement) throws ResultExceptions {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new ResultExceptions(String.format("unable to update database: %s, %s", statement, e.getMessage()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private final String[] createAuthStatements = {
             """
             CREATE TABLE IF NOT EXISTS  auth (
@@ -110,6 +127,7 @@ public class SqlAuthDAO implements AuthDAO {
               `username` varchar(256) NOT NULL,
               `json` TEXT DEFAULT NULL,
               PRIMARY KEY(authToken),
+              INDEX(authToken),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
