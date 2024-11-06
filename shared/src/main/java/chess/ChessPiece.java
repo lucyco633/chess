@@ -280,6 +280,7 @@ public class ChessPiece {
 
     }
 
+
     public void validPawnMoveWhite(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> valid) {
         if (myPosition.getRow() == 2) {
             ChessMove okayMoveUpTwo = checkMove(board, myPosition, 2, 0, null);
@@ -373,7 +374,6 @@ public class ChessPiece {
         }
 
     }
-
 
     public void validKingMoves(ChessBoard board, ChessPosition myPosition, int vertical, int horizontal, Collection<ChessMove> valid) {
         if ((vertical == 1 && horizontal == 1) | (vertical == 1 && horizontal == 0) |
