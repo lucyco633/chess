@@ -12,9 +12,41 @@ import java.sql.SQLException;
 
 public class Service {
 
-    public SqlUserDAO sqlUserDAO = new SqlUserDAO();
-    public SqlGameDAO sqlGameDAO = new SqlGameDAO();
-    public SqlAuthDAO sqlAuthDAO = new SqlAuthDAO();
+    public static SqlUserDAO sqlUserDAO;
+
+    static {
+        try {
+            sqlUserDAO = new SqlUserDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SqlGameDAO sqlGameDAO;
+
+    static {
+        try {
+            sqlGameDAO = new SqlGameDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SqlAuthDAO sqlAuthDAO;
+
+    static {
+        try {
+            sqlAuthDAO = new SqlAuthDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Service() throws ResultExceptions, DataAccessException {
     }

@@ -12,15 +12,19 @@ import java.util.UUID;
 public class SqlAuthDAO implements AuthDAO {
 
     public SqlAuthDAO() throws ResultExceptions, DataAccessException {
-        configureDatabase();
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException, ResultExceptions, SQLException {
-        var conn = DatabaseManager.getConnection();
         var statement = "SELECT authToken, username FROM auth WHERE authToken=?";
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             ps.setString(1, authToken);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -36,7 +40,7 @@ public class SqlAuthDAO implements AuthDAO {
     public String createAuth(String username) throws DataAccessException, ResultExceptions, SQLException {
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
         var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        executeCreate(statement, newAuth.authToken(), newAuth.username());
+        executeUpdate(statement, newAuth.authToken(), newAuth.username());
         return newAuth.authToken();
     }
 
@@ -44,7 +48,7 @@ public class SqlAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) throws DataAccessException, SQLException {
         var statement = "DELETE FROM auth WHERE authToken=?";
-        executeDelete(statement, authToken);
+        executeUpdate(statement, authToken);
     }
 
     public void deleteAllAuth() throws SQLException, DataAccessException {
@@ -59,21 +63,9 @@ public class SqlAuthDAO implements AuthDAO {
         return new AuthData(authToken, username);
     }
 
-    private void executeDelete(String statement, Object... params) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
-            for (var i = 0; i < params.length; i++) {
-                var param = params[i];
-                if (param instanceof String p) ps.setString(i + 1, p);
-            }
-            ps.executeUpdate();
-        }
-    }
-
-
-    private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+    private void executeUpdate(String statement, Object... params) throws DataAccessException, SQLException {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             for (var i = 0; i < params.length; i++) {
                 var param = params[i];
                 if (param instanceof String p) ps.setString(i + 1, p);
@@ -83,8 +75,8 @@ public class SqlAuthDAO implements AuthDAO {
     }
 
     private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         }
     }

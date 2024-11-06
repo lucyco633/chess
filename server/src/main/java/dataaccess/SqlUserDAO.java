@@ -11,7 +11,11 @@ import java.sql.SQLException;
 public class SqlUserDAO implements UserDAO {
 
     public SqlUserDAO() throws ResultExceptions, DataAccessException {
-        configureDatabase();
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
@@ -33,7 +37,7 @@ public class SqlUserDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(String username, String password, String email) throws ResultExceptions, SQLException, DataAccessException {
+    public void createUser(String username, String password, String email) throws SQLException, DataAccessException {
         var statement = "INSERT INTO user (username, password, email, json) VALUES (?, ?, ?, ?)";
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         UserData newUser = new UserData(username, hashedPassword, email);
@@ -41,14 +45,14 @@ public class SqlUserDAO implements UserDAO {
         executeCreate(statement, newUser.username(), newUser.password(), newUser.email(), json);
     }
 
-    public void deleteAllUsers() throws ResultExceptions, SQLException, DataAccessException {
+    public void deleteAllUsers() throws SQLException, DataAccessException {
         var statement = "TRUNCATE user";
         executeDeleteAll(statement);
     }
 
     private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             for (var i = 0; i < params.length; i++) {
                 var param = params[i];
                 if (param instanceof String p) {
@@ -57,12 +61,11 @@ public class SqlUserDAO implements UserDAO {
             }
             ps.executeUpdate();
         }
-
     }
 
     private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         }
     }

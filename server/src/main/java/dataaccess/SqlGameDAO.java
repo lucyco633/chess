@@ -16,7 +16,11 @@ import static java.sql.Types.NULL;
 public class SqlGameDAO implements GameDAO {
 
     public SqlGameDAO() throws ResultExceptions, DataAccessException {
-        configureDatabase();
+        try {
+            configureDatabase();
+        } catch (DataAccessException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
@@ -77,9 +81,9 @@ public class SqlGameDAO implements GameDAO {
 
     public Collection<GameData> listGames() throws DataAccessException, SQLException {
         Collection<GameData> games = new ArrayList<>();
-        var conn = DatabaseManager.getConnection();
         var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game";
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             try (var rs = ps.executeQuery()) {
                 while (rs.next()) {
                     games.add(readGame(rs));
@@ -101,8 +105,8 @@ public class SqlGameDAO implements GameDAO {
     }
 
     private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             for (var i = 0; i < params.length; i++) {
                 var param = params[i];
                 if (param instanceof String p) {
@@ -119,8 +123,8 @@ public class SqlGameDAO implements GameDAO {
     }
 
     private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
-        var conn = DatabaseManager.getConnection();
-        try (var ps = conn.prepareStatement(statement)) {
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(statement)) {
             ps.executeUpdate();
         }
     }
