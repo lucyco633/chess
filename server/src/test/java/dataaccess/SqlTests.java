@@ -1,9 +1,5 @@
-package sql;
+package dataaccess;
 
-import dataaccess.DataAccessException;
-import dataaccess.SqlAuthDAO;
-import dataaccess.SqlGameDAO;
-import dataaccess.SqlUserDAO;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
