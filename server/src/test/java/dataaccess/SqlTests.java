@@ -85,6 +85,13 @@ public class SqlTests {
     }
 
     @Test
+    void deleteAllAuthSuccess() throws ResultExceptions, DataAccessException, SQLException {
+        String authToken = SQL_AUTH_DAO.createAuth("lucyco7");
+        SQL_AUTH_DAO.deleteAllAuth();
+        assertNull(SQL_AUTH_DAO.getAuth(authToken));
+    }
+
+    @Test
     void getUserSuccess() throws ResultExceptions, DataAccessException, SQLException {
         SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
         UserData userData = SQL_USER_DAO.getUser("lucyco7");
@@ -103,6 +110,14 @@ public class SqlTests {
         SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
         UserData userData = SQL_USER_DAO.getUser("lucyco7");
         assertNotNull(userData);
+    }
+
+    @Test
+    void deleteAllUsersSuccess() throws ResultExceptions, DataAccessException, SQLException {
+        SQL_USER_DAO.createUser("lucyco7", "hello", "lucyco7@byu.edu");
+        SQL_USER_DAO.deleteAllUsers();
+        UserData userData = SQL_USER_DAO.getUser("lucyco7");
+        assertNull(userData);
     }
 
     @Test
@@ -135,6 +150,15 @@ public class SqlTests {
     }
 
     @Test
+    void updateGameFail() throws ResultExceptions, DataAccessException, SQLException {
+        GameData newGame = SQL_GAME_DAO.createGame("Game 1");
+        SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game());
+        GameData actualGame = SQL_GAME_DAO.getGame(newGame.gameID());
+        GameData expectedGame = new GameData(newGame.gameID(), "lucyco", "henry", newGame.gameName(), newGame.game());
+        assertNotEquals(actualGame.whiteUsername(), expectedGame.whiteUsername());
+    }
+
+    @Test
     void listGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
         GameData newGame2 = SQL_GAME_DAO.createGame("Game 2");
@@ -143,5 +167,28 @@ public class SqlTests {
         listGamesExpected.add(newGame);
         listGamesExpected.add(newGame2);
         assertEquals(listGamesExpected, listGamesActual);
+    }
+
+    @Test
+    void listGameFail() throws ResultExceptions, DataAccessException, SQLException {
+        GameData newGame = SQL_GAME_DAO.createGame("Game 1");
+        GameData newGame2 = SQL_GAME_DAO.createGame("Game 2");
+        SQL_GAME_DAO.deleteAllGames();
+        Collection<GameData> listGamesActual = SQL_GAME_DAO.listGames();
+        Collection<GameData> listGamesExpected = new ArrayList<>();
+        listGamesExpected.add(newGame);
+        listGamesExpected.add(newGame2);
+        assertNotEquals(listGamesExpected, listGamesActual);
+    }
+
+    @Test
+    void deleteAllGamesSuccess() throws ResultExceptions, DataAccessException, SQLException {
+        GameData newGame = SQL_GAME_DAO.createGame("Game 1");
+        GameData newGame2 = SQL_GAME_DAO.createGame("Game 2");
+        SQL_GAME_DAO.deleteAllGames();
+        GameData findGame = SQL_GAME_DAO.getGame(newGame.gameID());
+        GameData findGame2 = SQL_GAME_DAO.getGame(newGame2.gameID());
+        assertNull(findGame);
+        assertNull(findGame2);
     }
 }
