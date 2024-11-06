@@ -40,7 +40,7 @@ public class SqlAuthDAO implements AuthDAO {
     public String createAuth(String username) throws DataAccessException, ResultExceptions, SQLException {
         AuthData newAuth = new AuthData(UUID.randomUUID().toString(), username);
         var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        executeUpdate(statement, newAuth.authToken(), newAuth.username());
+        UpdateSql.executeUpdate(statement, newAuth.authToken(), newAuth.username());
         return newAuth.authToken();
     }
 
@@ -48,7 +48,7 @@ public class SqlAuthDAO implements AuthDAO {
     @Override
     public void deleteAuth(String authToken) throws DataAccessException, SQLException {
         var statement = "DELETE FROM auth WHERE authToken=?";
-        executeUpdate(statement, authToken);
+        UpdateSql.executeUpdate(statement, authToken);
     }
 
     public void deleteAllAuth() throws SQLException, DataAccessException {
@@ -61,19 +61,6 @@ public class SqlAuthDAO implements AuthDAO {
         var authToken = rs.getString("authToken");
         var username = rs.getString("username");
         return new AuthData(authToken, username);
-    }
-
-    private void executeUpdate(String statement, Object... params) throws DataAccessException, SQLException {
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(statement)) {
-            for (var i = 0; i < params.length; i++) {
-                var param = params[i];
-                if (param instanceof String p) {
-                    ps.setString(i + 1, p);
-                }
-            }
-            ps.executeUpdate();
-        }
     }
 
     private void executeDeleteAll(String statement) throws DataAccessException, SQLException {

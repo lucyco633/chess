@@ -42,25 +42,12 @@ public class SqlUserDAO implements UserDAO {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         UserData newUser = new UserData(username, hashedPassword, email);
         var json = new Gson().toJson(newUser);
-        executeCreate(statement, newUser.username(), newUser.password(), newUser.email(), json);
+        UpdateSql.executeUpdate(statement, newUser.username(), newUser.password(), newUser.email(), json);
     }
 
     public void deleteAllUsers() throws SQLException, DataAccessException {
         var statement = "TRUNCATE user";
         executeDeleteAll(statement);
-    }
-
-    private void executeCreate(String statement, Object... params) throws DataAccessException, SQLException {
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(statement)) {
-            for (var i = 0; i < params.length; i++) {
-                var param = params[i];
-                if (param instanceof String p) {
-                    ps.setString(i + 1, p);
-                }
-            }
-            ps.executeUpdate();
-        }
     }
 
     private void executeDeleteAll(String statement) throws DataAccessException, SQLException {
