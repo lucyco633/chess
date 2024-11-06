@@ -381,8 +381,8 @@ public class ChessPiece {
                 (vertical == -1 && horizontal == 0) | (vertical == -1 && horizontal == 1) |
                 (vertical == 0 && horizontal == 1) | (vertical == 1 && horizontal == 0) |
                 (vertical == 0 && horizontal == -1) | (vertical == -1 && horizontal == 0)) {
-            if ((myPosition.getColumn() + horizontal) > 0 && (myPosition.getColumn() + horizontal) <= 8 &&
-                    (myPosition.getRow() + vertical) > 0 && (myPosition.getRow() + vertical) <= 8) {
+            if (((myPosition.getColumn() + horizontal) > 0) && ((myPosition.getColumn() + horizontal) <= 8) &&
+                    ((myPosition.getRow() + vertical) > 0) && ((myPosition.getRow() + vertical) <= 8)) {
                 ChessMove okayMove = checkMove(board, myPosition, vertical, horizontal, null);
                 if (okayMove != null) {
                     valid.add(okayMove);
@@ -410,9 +410,7 @@ public class ChessPiece {
                 validKingMoves(board, myPosition, -1, 0, validMoves);
                 validKingMoves(board, myPosition, -1, -1, validMoves);
                 validKingMoves(board, myPosition, 0, 1, validMoves);
-                validKingMoves(board, myPosition, 1, 0, validMoves);
                 validKingMoves(board, myPosition, 0, -1, validMoves);
-                validKingMoves(board, myPosition, -1, 1, validMoves);
                 break;
 
             case QUEEN:
