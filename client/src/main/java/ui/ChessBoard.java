@@ -66,16 +66,12 @@ public class ChessBoard {
                 if (boardCol % 2 != 0 && boardCol != 9) {
                     out.print(SET_BG_COLOR_LIGHT_GREY);
                     checkTeam(out, rowNum, blackPerspective);
-                    //out.print(EMPTY.repeat(prefixLength));
                     out.print(chessRow.get(boardCol));
-                    //out.print(EMPTY.repeat(suffixLength));
                 }
                 if (boardCol % 2 == 0 && boardCol != 0) {
                     out.print(SET_BG_COLOR_DARK_GREY);
                     checkTeam(out, rowNum, blackPerspective);
-                    //out.print(EMPTY.repeat(prefixLength));
                     out.print(chessRow.get(boardCol));
-                    //out.print(EMPTY.repeat(suffixLength));
                 }
             }
 
@@ -83,16 +79,12 @@ public class ChessBoard {
                 if (boardCol % 2 == 0 && boardCol != 0) {
                     out.print(SET_BG_COLOR_LIGHT_GREY);
                     checkTeam(out, rowNum, blackPerspective);
-                    //out.print(EMPTY.repeat(prefixLength));
                     out.print(chessRow.get(boardCol));
-                    //out.print(EMPTY.repeat(suffixLength));
                 }
                 if (boardCol % 2 != 0 && boardCol != 9) {
                     out.print(SET_BG_COLOR_DARK_GREY);
                     checkTeam(out, rowNum, blackPerspective);
-                    //out.print(EMPTY.repeat(prefixLength));
                     out.print(chessRow.get(boardCol));
-                    //out.print(EMPTY.repeat(suffixLength));
                 }
             }
         }
