@@ -13,26 +13,24 @@ public class ChessBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
 
 
-    public static void main(String[] args) {
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+//    public static void main(String[] args) {
+//        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+//
+//        out.print(ERASE_SCREEN);
+//
+//        ArrayList<ArrayList<String>> chessBoard = createChessBoardArray();
+//
+//        printChessBoard(out, chessBoard);
+//
+//        Collections.reverse(chessBoard);
+//
+//        printReversedChessBoard(out, chessBoard);
+//
+//        out.print(SET_BG_COLOR_BLACK);
+//        out.print(SET_TEXT_COLOR_WHITE);
+//    }
 
-        out.print(ERASE_SCREEN);
-
-        ArrayList<ArrayList<String>> chessBoard = createChessBoardArray();
-
-        //out.print(chessBoard);
-
-        printChessBoard(out, chessBoard);
-
-        Collections.reverse(chessBoard);
-
-        printReversedChessBoard(out, chessBoard);
-
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
-    }
-
-    private static void printChessBoard(PrintStream out, ArrayList<ArrayList<String>> chessBoard) {
+    public void printChessBoard(PrintStream out, ArrayList<ArrayList<String>> chessBoard) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
@@ -41,7 +39,7 @@ public class ChessBoard {
         }
     }
 
-    private static void printReversedChessBoard(PrintStream out, ArrayList<ArrayList<String>> chessBoard) {
+    public void printReversedChessBoard(PrintStream out, ArrayList<ArrayList<String>> chessBoard) {
 
         for (int boardRow = BOARD_SIZE_IN_SQUARES - 1; boardRow >= 0; --boardRow) {
 
@@ -116,7 +114,7 @@ public class ChessBoard {
         }
     }
 
-    private static ArrayList<ArrayList<String>> createChessBoardArray() {
+    public ArrayList<ArrayList<String>> createChessBoardArray() {
         ArrayList<ArrayList<String>> chessBoard = new ArrayList<>();
 
         chessBoard.add(

@@ -22,17 +22,17 @@ public class ServerFacade {
 
     public RegisterResult register(RegisterRequest request) throws ResponseException {
         var path = "/user";
-        return this.makeRequest("POST", path, request, RegisterResult.class);
+        return this.makeRequest("POST", path, request, RegisterResult.class, null);
     }
 
     public LoginResult login(LoginRequest request) throws ResponseException {
         var path = "/session";
-        return this.makeRequest("POST", path, request, LoginResult.class);
+        return this.makeRequest("POST", path, request, LoginResult.class, null);
     }
 
     public EmptyResult logout(LogoutRequest request) throws ResponseException {
         var path = "/session";
-        return this.makeRequestLogout("DELETE", path, request, EmptyResult.class);
+        return this.makeRequest("DELETE", path, request, EmptyResult.class, request.authToken());
     }
 
     public ListGamesResult listGames(ListGamesRequest request) throws ResponseException {
@@ -42,43 +42,29 @@ public class ServerFacade {
 
     public CreateGameResult createGame(CreateGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequestCreateGame("POST", path, request, CreateGameResult.class);
+        return this.makeRequest("POST", path, request, CreateGameResult.class, request.authToken());
     }
 
     public JoinGameResult joinGame(JoinGameRequest request) throws ResponseException {
         var path = "/game";
-        return this.makeRequestJoinGame("PUT", path, request, JoinGameResult.class);
+        return this.makeRequest("PUT", path, request, JoinGameResult.class, request.authToken());
     }
 
     public EmptyResult clear(EmptyRequest request) throws ResponseException {
         var path = "/db";
-        return this.makeRequest("DELETE", path, request, EmptyResult.class);
+        return this.makeRequest("DELETE", path, request, EmptyResult.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            writeBody(request, http);
-            http.connect();
-            throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-
-    private <T> T makeRequestLogout(String method, String path, LogoutRequest request, Class<T> responseClass) throws ResponseException {
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-            http.setRequestProperty("Authorization", request.authToken());
+            if (authToken != null) {
+                http.setRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
@@ -95,46 +81,7 @@ public class ServerFacade {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
             http.setRequestProperty("Authorization", request.authToken());
-
-            writeBody(request, http);
-            http.connect();
-            throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-
-    private <T> T makeRequestCreateGame(String method, String path, CreateGameRequest request, Class<T> responseClass) throws ResponseException {
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-            http.setRequestProperty("Authorization", request.authToken());
-
-            writeBody(request, http);
-            http.connect();
-            throwIfNotSuccessful(http);
-            return readBody(http, responseClass);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-
-    private <T> T makeRequestJoinGame(String method, String path, JoinGameRequest request, Class<T> responseClass) throws ResponseException {
-        try {
-            URL url = (new URI(serverUrl + path)).toURL();
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-            http.setRequestMethod(method);
-            http.setDoOutput(true);
-            http.setRequestProperty("Authorization", request.authToken());
-
-            writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
