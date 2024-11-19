@@ -7,6 +7,7 @@ import server.Server;
 import server.ServerFacade;
 import server.requests.*;
 import server.results.*;
+import service.ResultExceptions;
 
 import java.util.Collection;
 
@@ -51,6 +52,21 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void registerSuccessTest() throws Exception {
+        RegisterRequest request = new RegisterRequest("lucy", "lucy", "lucy");
+        RegisterResult result = facade.register(request);
+        assertTrue(result.authToken().length() > 10);
+    }
+
+    @Test
+    void registerFail() throws Exception {
+        RegisterRequest request = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult result = facade.register(request);
+        //how to fail it?
+        assertTrue(result.authToken().length() > 10);
+    }
+
+    @Test
     void login() throws Exception {
         RegisterRequest registerRequest = new RegisterRequest("player1", "password", "p1@email.com");
         RegisterResult registerResult = facade.register(registerRequest);
@@ -60,15 +76,29 @@ public class ServerFacadeTests {
     }
 
     @Test
+    void loginFail() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        LoginRequest request = new LoginRequest("player1", "wrongpassword");
+        assertThrows(ResponseException.class, () -> facade.login(request));
+    }
+
+    @Test
     void logout() throws Exception {
         RegisterRequest registerRequest = new RegisterRequest("player1", "password", "p1@email.com");
         RegisterResult registerResult = facade.register(registerRequest);
-        //LoginRequest loginRequest = new LoginRequest("player1", "password");
-        //LoginResult loginResult = facade.login(loginRequest);
         LogoutRequest logoutRequest = new LogoutRequest(registerResult.authToken());
         EmptyResult loggedOut = facade.logout(logoutRequest);
         EmptyResult expected = new EmptyResult();
         assertEquals(loggedOut, expected);
+    }
+
+    @Test
+    void logoutFail() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest("player1", "password", "p1@email.com");
+        RegisterResult registerResult = facade.register(registerRequest);
+        LogoutRequest logoutRequest = new LogoutRequest("hello");
+        assertThrows(ResponseException.class, () -> facade.logout(logoutRequest));
     }
 
     @Test

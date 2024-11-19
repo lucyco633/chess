@@ -28,7 +28,7 @@ public class ClearHandler implements Route {
             return "{}";
         } catch (ResultExceptions e) {
             response.status(500);
-            response.body("{ \"message\": \"Error: unable to clear game\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: unable to clear")));
             return response.body();
         }
     }

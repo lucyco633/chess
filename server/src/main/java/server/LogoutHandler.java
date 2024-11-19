@@ -26,11 +26,11 @@ public class LogoutHandler implements Route {
             return response.body();
         } catch (ResultExceptions e) {
             response.status(500);
-            response.body("{ \"message\": \"Error: unable to create game\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: unable to logout")));
             return response.body();
         } catch (ResultExceptions.AuthorizationError e) {
             response.status(401);
-            response.body("{ \"message\": \"Error: unauthorized\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: unauthorized")));
             return response.body();
         }
     }

@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import server.requests.*;
 import server.results.*;
+import ui.ErrorMessages;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,7 +105,10 @@ public class ServerFacade {
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, "failure: " + status);
+            InputStream message = http.getErrorStream();
+            InputStreamReader reader = new InputStreamReader(message);
+            ErrorMessages response = new Gson().fromJson(reader, ErrorMessages.class);
+            throw new ResponseException(status, "failure: " + response.message() + "\n");
         }
     }
 

@@ -28,19 +28,19 @@ public class JoinGameHandler implements Route {
             return response.body();
         } catch (ResultExceptions e) {
             response.status(500);
-            response.body("{ \"message\": \"Error: unable to create game\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: unable to join game")));
             return response.body();
         } catch (ResultExceptions.AuthorizationError e) {
             response.status(401);
-            response.body("{ \"message\": \"Error: unauthorized\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: unauthorized")));
             return response.body();
         } catch (ResultExceptions.BadRequestError e) {
             response.status(400);
-            response.body("{ \"message\": \"Error: bad request\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: bad request")));
             return response.body();
         } catch (ResultExceptions.AlreadyTakenError e) {
             response.status(403);
-            response.body("{ \"message\": \"Error: already taken\" }");
+            response.body(new Gson().toJson(new ErrorMessages("Error: already taken")));
             return response.body();
         }
     }
