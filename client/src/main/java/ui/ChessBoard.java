@@ -11,24 +11,7 @@ public class ChessBoard {
     // Board dimensions
     private static final int BOARD_SIZE_IN_SQUARES = 10;
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
-
-
-//    public static void main(String[] args) {
-//        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-//
-//        out.print(ERASE_SCREEN);
-//
-//        ArrayList<ArrayList<String>> chessBoard = createChessBoardArray();
-//
-//        printChessBoard(out, chessBoard);
-//
-//        Collections.reverse(chessBoard);
-//
-//        printReversedChessBoard(out, chessBoard);
-//
-//        out.print(SET_BG_COLOR_BLACK);
-//        out.print(SET_TEXT_COLOR_WHITE);
-//    }
+    
 
     public void printChessBoard(PrintStream out, ArrayList<ArrayList<String>> chessBoard) {
 
