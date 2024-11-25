@@ -114,7 +114,7 @@ public class PostLoginClient {
         //check if ID parameter can be converted to int and is in range of number of games
         try {
             if (params.length == 2) {
-                if (Integer.valueOf(params[0]) > gameListStrings.size()) {
+                if (Integer.valueOf(params[0]) > gameListStrings.size() || Integer.valueOf(params[0]) <= 0) {
                     return "Invalid Game ID\n";
                 }
                 JoinGameRequest joinGameRequest = new JoinGameRequest(params[1].toUpperCase(),
