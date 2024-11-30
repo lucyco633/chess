@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 
 import com.google.gson.Gson;
@@ -44,5 +45,47 @@ public class WebSocketFacade extends Endpoint {
 
     }
 
+    public void connectGame(String authToken, Integer gameID) throws ResponseException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
 
+
+    public void makeMove(String authToken, Integer gameID, ChessMove chessMove) throws ResponseException {
+        try {
+            //type adapter??
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public void leaveGame(String authToken, Integer gameID) throws ResponseException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+            this.session.close();
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public void resignGame(String authToken, Integer gameID) throws ResponseException {
+        try {
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                    authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+            this.session.close();
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
 }
