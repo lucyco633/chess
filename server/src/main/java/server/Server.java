@@ -1,5 +1,6 @@
 package server;
 
+import server.websocket.WebSocketServer;
 import spark.*;
 
 public class Server {
