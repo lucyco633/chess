@@ -1,5 +1,7 @@
 package ui;
 
+import server.ResponseException;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -7,7 +9,7 @@ import static ui.EscapeSequences.*;
 public class PreLoginRepl {
     private final PreLoginClient client;
 
-    public PreLoginRepl(String serverUrl) {
+    public PreLoginRepl(String serverUrl) throws ResponseException {
         client = new PreLoginClient(serverUrl);
     }
 

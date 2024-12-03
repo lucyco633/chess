@@ -16,7 +16,7 @@ public class PreLoginClient {
     private final String serverUrl;
     private String userAuthorization;
 
-    public PreLoginClient(String serverUrl) {
+    public PreLoginClient(String serverUrl) throws ResponseException {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
@@ -95,7 +95,7 @@ public class PreLoginClient {
         return userAuthorization;
     }
 
-    private void sendToPostLogin() {
+    private void sendToPostLogin() throws ResponseException {
         PostLoginRepl postLoginRepl = new PostLoginRepl(getServerUrl(), getUserAuthorization());
         postLoginRepl.run();
     }

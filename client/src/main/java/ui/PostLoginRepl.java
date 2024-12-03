@@ -1,5 +1,7 @@
 package ui;
 
+import server.ResponseException;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
@@ -8,7 +10,7 @@ import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
 public class PostLoginRepl {
     private final PostLoginClient client;
 
-    public PostLoginRepl(String serverUrl, String userAuthorization) {
+    public PostLoginRepl(String serverUrl, String userAuthorization) throws ResponseException {
         client = new PostLoginClient(serverUrl, userAuthorization);
     }
 

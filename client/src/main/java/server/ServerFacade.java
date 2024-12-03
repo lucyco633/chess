@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import server.requests.*;
 import server.results.*;
 import ui.ErrorMessages;
+import websocket.commands.UserGameCommand;
+import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +18,9 @@ import java.net.URL;
 public class ServerFacade {
 
     private final String serverUrl;
+    private WebSocketCommunicator webSocketCommunicator;
 
-    public ServerFacade(String url) {
+    public ServerFacade(String url) throws ResponseException {
         serverUrl = url;
     }
 
@@ -46,14 +49,30 @@ public class ServerFacade {
         return this.makeRequest("POST", path, request, CreateGameResult.class, request.authToken());
     }
 
-    public JoinGameResult joinGame(JoinGameRequest request) throws ResponseException {
+    public JoinGameResult joinGame(JoinGameRequest request) throws ResponseException, IOException {
         var path = "/game";
+        var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                request.authToken(), request.gameID());
+        webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         return this.makeRequest("PUT", path, request, JoinGameResult.class, request.authToken());
     }
 
     public EmptyResult clear(EmptyRequest request) throws ResponseException {
         var path = "/db";
         return this.makeRequest("DELETE", path, request, EmptyResult.class, null);
+    }
+
+    public void leaveGame(String authToken, int gameId) throws IOException {
+        var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                authToken, gameId);
+        webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+        webSocketCommunicator.session.close();
+    }
+
+    public void resignGame(String authToken, int gameId) throws IOException {
+        var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN,
+                authToken, gameId);
+        webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {

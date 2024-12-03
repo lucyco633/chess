@@ -8,6 +8,7 @@ import server.results.CreateGameResult;
 import server.results.JoinGameResult;
 import server.results.ListGamesResult;
 
+import java.io.IOException;
 import java.util.*;
 
 import static java.lang.System.out;
@@ -20,7 +21,7 @@ public class PostLoginClient {
     private final ChessBoard chessBoard;
 
 
-    public PostLoginClient(String serverUrl, String userAuthorization) {
+    public PostLoginClient(String serverUrl, String userAuthorization) throws ResponseException {
         server = new ServerFacade(serverUrl);
         this.userAuthorization = userAuthorization;
         this.chessBoard = new ChessBoard();
@@ -135,6 +136,8 @@ public class PostLoginClient {
         } catch (NumberFormatException e) {
             return "Invalid Game ID\n";
         } catch (ResponseException e) {
+            return e.getMessage();
+        } catch (IOException e) {
             return e.getMessage();
         }
     }
