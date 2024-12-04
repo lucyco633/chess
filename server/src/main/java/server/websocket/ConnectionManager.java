@@ -27,7 +27,7 @@ public class ConnectionManager {
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
                 if (!c.chessPlayer.equals(excludePlayingClient)) {
-                    c.send(serverMessage.toString());
+                    c.send(serverMessage);
                 }
             } else {
                 removeList.add(c);
@@ -38,5 +38,12 @@ public class ConnectionManager {
         //for (var c : removeList) {
         //connections.remove(c.chessPlayer);
         //}
+    }
+
+    public void sendToRootClient(String rootClient, ServerMessage serverMessage) throws IOException {
+        Connection rootClientConnection = connections.get(rootClient);
+        if (rootClientConnection.session.isOpen()) {
+            rootClientConnection.send(serverMessage);
+        }
     }
 }

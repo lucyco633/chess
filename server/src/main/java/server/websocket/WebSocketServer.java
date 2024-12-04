@@ -72,23 +72,29 @@ public class WebSocketServer {
         }
     }
 
-    public void connect(UserGameCommand userGameCommand, Session session) throws SQLException,
-            ResultExceptions, DataAccessException, IOException {
-        connections.add(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(), session,
-                sqlGameDAO.getGame(userGameCommand.getGameID()).game());
-        String message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + "joined game as observer";
-        if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
-                sqlGameDAO.getGame(userGameCommand.getGameID()).blackUsername())) {
-            message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + "joined game as team black";
-        } else if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
-                sqlGameDAO.getGame(userGameCommand.getGameID()).whiteUsername())) {
-            message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + "joined game as team white";
+    public void connect(UserGameCommand userGameCommand, Session session) throws IOException {
+        try {
+            connections.add(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(), session,
+                    sqlGameDAO.getGame(userGameCommand.getGameID()).game());
+            String message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as observer";
+            if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
+                    sqlGameDAO.getGame(userGameCommand.getGameID()).blackUsername())) {
+                message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as team black";
+            } else if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
+                    sqlGameDAO.getGame(userGameCommand.getGameID()).whiteUsername())) {
+                message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as team white";
+            }
+            String rootClientUsername = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username();
+            ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                    new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
+            connections.sendToRootClient(rootClientUsername, loadGameMessage);
+            ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+            connections.broadcast(rootClientUsername, serverMessage);
+        } catch (SQLException | ResultExceptions | DataAccessException | IOException e) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: " + e.getMessage());
+            connections.broadcast(null, errorMessage);
         }
-        ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
-        connections.broadcast(null, loadGameMessage);
-        ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(), serverMessage);
     }
 
     public void makeMove(MakeMoveCommand makeMoveCommand, Session session) throws IOException {
@@ -100,7 +106,9 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid game ID");
                 connections.broadcast(null, errorMessage);
-            } else if (sqlAuthDAO.getAuth(authToken) == null) {
+            } else if (sqlAuthDAO.getAuth(authToken) == null | connections.connections.contains(
+                    new Connection(sqlAuthDAO.getAuth(authToken).username(), session,
+                            sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()))) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid user token");
                 connections.broadcast(null, errorMessage);
