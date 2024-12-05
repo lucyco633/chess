@@ -24,8 +24,6 @@ import java.util.Objects;
 @WebSocket
 public class WebSocketServer {
 
-    //create complex data structure that will hold onto game, clients, and session
-    //add functionality to receive user commands and send server messages
     private final ConnectionManager connections = new ConnectionManager();
     public static SqlGameDAO sqlGameDAO;
 
@@ -148,18 +146,6 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, not your turn");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
-                    whiteUsername.equals(clientUsername) &&
-                    (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) |
-                            chessGame.isInStalemate(ChessGame.TeamColor.WHITE))) |
-                    (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
-                            blackUsername.equals(clientUsername)
-                            && (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
-                            | chessGame.isInStalemate(ChessGame.TeamColor.BLACK)))) && !gameData.resigned()) {
-                //trying to send load game for checkmate here
-                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                        new Gson().toJson(chessGame));
-                connections.broadcast(clientUsername, loadGameMessage, gameId);
             } else if ((!whiteUsername.equals(clientUsername) &&
                     !blackUsername.equals(clientUsername)) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
@@ -177,6 +163,25 @@ public class WebSocketServer {
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Move was made");
                 connections.broadcast(clientUsername, serverMessage, gameId);
+                if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            blackUsername + "is in checkmate");
+                    connections.broadcast(clientUsername, checkmateMessage, gameId);
+                    connections.sendToClient(clientUsername, checkmateMessage, gameId);
+                }
+                if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            whiteUsername + "is in checkmate");
+                    connections.broadcast(clientUsername, checkmateMessage, gameId);
+                    connections.sendToClient(clientUsername, checkmateMessage, gameId);
+                }
+                if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK) |
+                        chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
+                    ServerMessage stalemateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            "Stalemate");
+                    connections.broadcast(clientUsername, stalemateMessage, gameId);
+                    connections.sendToClient(clientUsername, stalemateMessage, gameId);
+                }
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(chessGame));
                 connections.broadcast(clientUsername, loadGameMessage, gameId);
