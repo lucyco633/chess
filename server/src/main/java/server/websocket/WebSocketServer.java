@@ -119,24 +119,28 @@ public class WebSocketServer {
             if (sqlGameDAO.getGame(gameId) == null) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid game ID");
-                connections.broadcast(null, errorMessage);
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
             } else if (sqlAuthDAO.getAuth(authToken) == null | connections.connections.contains(
                     new Connection(sqlAuthDAO.getAuth(authToken).username(), session,
                             sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()))) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid user token");
-                connections.broadcast(null, errorMessage);
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
             } else if (!sqlGameDAO.getGame(gameId).game().validMoves(chessMove.getStartPosition()).contains(chessMove)) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move");
-                connections.broadcast(null, errorMessage);
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
             } else {
                 GameData gameData = sqlGameDAO.getGame(makeMoveCommand.getGameID());
                 ChessGame chessGame = gameData.game();
                 chessGame.makeMove(makeMoveCommand.getChessMove());
+                ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Move was made");
+                connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), serverMessage);
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()));
                 connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
+                connections.sendToClient(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
             }
         } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,

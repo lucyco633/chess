@@ -6,14 +6,14 @@ import java.util.Objects;
 
 public class MakeMoveCommand extends UserGameCommand {
 
-    ChessMove chessMove;
+    ChessMove move;
 
-    public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove chessMove) {
+    public MakeMoveCommand(CommandType commandType, String authToken, Integer gameID, ChessMove move) {
         super(commandType, authToken, gameID);
-        this.chessMove = chessMove;
+        this.move = move;
     }
 
     public ChessMove getChessMove() {
-        return this.chessMove;
+        return this.move;
     }
 }
