@@ -74,22 +74,36 @@ public class WebSocketServer {
 
     public void connect(UserGameCommand userGameCommand, Session session) throws IOException {
         try {
-            connections.add(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(), session,
-                    sqlGameDAO.getGame(userGameCommand.getGameID()).game());
-            String message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as observer";
-            if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
-                    sqlGameDAO.getGame(userGameCommand.getGameID()).blackUsername())) {
-                message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as team black";
-            } else if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
-                    sqlGameDAO.getGame(userGameCommand.getGameID()).whiteUsername())) {
-                message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() + " joined game as team white";
+            int gameId = userGameCommand.getGameID();
+            String authToken = userGameCommand.getAuthToken();
+            if (sqlAuthDAO.getAuth(authToken) == null) {
+                ServerMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid user token");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlGameDAO.getGame(gameId) == null) {
+                ServerMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid game ID");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else {
+                String rootClientUsername = sqlAuthDAO.getAuth(authToken).username();
+                connections.add(rootClientUsername, session, sqlGameDAO.getGame(userGameCommand.getGameID()).game());
+                String message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
+                        " joined game as observer";
+                if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
+                        sqlGameDAO.getGame(userGameCommand.getGameID()).blackUsername())) {
+                    message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
+                            " joined game as team black";
+                } else if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
+                        sqlGameDAO.getGame(userGameCommand.getGameID()).whiteUsername())) {
+                    message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
+                            " joined game as team white";
+                }
+                ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                        new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
+                connections.sendToClient(rootClientUsername, loadGameMessage);
+                ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+                connections.broadcast(rootClientUsername, serverMessage);
             }
-            String rootClientUsername = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username();
-            ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                    new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
-            connections.sendToRootClient(rootClientUsername, loadGameMessage);
-            ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-            connections.broadcast(rootClientUsername, serverMessage);
         } catch (SQLException | ResultExceptions | DataAccessException | IOException e) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: " + e.getMessage());

@@ -33,14 +33,9 @@ public class ConnectionManager {
                 removeList.add(c);
             }
         }
-
-        //do I need this?? from pet shop
-        //for (var c : removeList) {
-        //connections.remove(c.chessPlayer);
-        //}
     }
 
-    public void sendToRootClient(String rootClient, ServerMessage serverMessage) throws IOException {
+    public void sendToClient(String rootClient, ServerMessage serverMessage) throws IOException {
         Connection rootClientConnection = connections.get(rootClient);
         if (rootClientConnection.session.isOpen()) {
             rootClientConnection.send(serverMessage);
