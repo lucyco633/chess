@@ -1,9 +1,11 @@
 package server;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import server.requests.*;
 import server.results.*;
 import ui.ErrorMessages;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -73,6 +75,12 @@ public class ServerFacade {
         var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN,
                 authToken, gameId);
         webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
+    public void makeMove(String authToken, int gameId, ChessMove chessMove) throws IOException {
+        MakeMoveCommand makeMoveCommand = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,
+                authToken, gameId, chessMove);
+        webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {

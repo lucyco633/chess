@@ -1,4 +1,4 @@
-package ui;
+package ui.repl;
 
 public class GameplayRepl {
 }

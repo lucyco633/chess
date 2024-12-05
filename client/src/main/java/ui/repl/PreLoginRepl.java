@@ -1,21 +1,21 @@
-package ui;
+package ui.repl;
 
 import server.ResponseException;
+import ui.PreLoginClient;
 
 import java.util.Scanner;
 
-import static ui.EscapeSequences.ROOK_CHARACTER;
-import static ui.EscapeSequences.SET_TEXT_COLOR_GREEN;
+import static ui.EscapeSequences.*;
 
-public class PostLoginRepl {
-    private final PostLoginClient client;
+public class PreLoginRepl {
+    private final PreLoginClient client;
 
-    public PostLoginRepl(String serverUrl, String userAuthorization) throws ResponseException {
-        client = new PostLoginClient(serverUrl, userAuthorization);
+    public PreLoginRepl(String serverUrl) throws ResponseException {
+        client = new PreLoginClient(serverUrl);
     }
 
     public void run() {
-        System.out.println(ROOK_CHARACTER + "Your chess homepage. Select a command to start." + ROOK_CHARACTER);
+        System.out.println(ROOK_CHARACTER + "Welcome to chess! Login to start." + ROOK_CHARACTER);
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -29,9 +29,6 @@ public class PostLoginRepl {
             try {
                 result = client.eval(line);
                 System.out.print(result);
-                if (command.equals("logout")) {
-                    return;
-                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);

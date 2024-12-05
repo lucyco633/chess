@@ -1,6 +1,9 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import server.ResponseException;
 import server.ServerFacade;
 import server.ServerMessageHandler;
@@ -9,6 +12,7 @@ import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class GameplayClient {
@@ -17,6 +21,7 @@ public class GameplayClient {
     private ChessGame chessGame;
     private final ServerFacade server;
     private String team;
+    private ChessBoard chessBoard;
 
 
     public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team) throws ResponseException {
@@ -62,7 +67,7 @@ public class GameplayClient {
         }
     }
 
-    private String resign(String[] params) {
+    private String resign(String... params) {
         try {
             if (params.length == 0) {
                 Scanner scanner = new Scanner(System.in);
@@ -88,20 +93,92 @@ public class GameplayClient {
         }
     }
 
-    private String makeMove(String[] params) {
+    private String makeMove(String... params) {
+        try {
+            if (params.length == 4) {
+                int startRow = parsePosition(params[0]);
+                int startColumn = parsePosition(params[1]);
+                int endRow = parsePosition(params[2]);
+                int endColumn = parsePosition(params[3]);
+                if (startRow == 0 | endRow == 0 | startColumn == 0 | endColumn == 0) {
+                    return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> invalid input";
+                }
+                ChessPosition start = new ChessPosition(startRow, startColumn);
+                ChessPosition end = new ChessPosition(endRow, endColumn);
+                //how to handle promotion piece?
+                ChessPiece.PieceType promotionPiece = null;
+                if (endRow == 8 && Objects.equals(team, "WHITE") &&
+                        chessGame.getBoard().getPiece(start).getPieceType().equals(ChessPiece.PieceType.PAWN)) {
+                    Scanner scanner = new Scanner(System.in);
+                    System.out.println("How would you like to promote?");
+                    String line = scanner.nextLine();
+                    String lineCommandArray[] = line.split(" ", 2);
+                    String command = lineCommandArray[0];
+                    if (command.equals("Q")) {
+                        promotionPiece = ChessPiece.PieceType.QUEEN;
+                    } else if (command.equals("N")) {
+                        promotionPiece = ChessPiece.PieceType.KNIGHT;
+                    } else if (command.equals("R")) {
+                        promotionPiece = ChessPiece.PieceType.ROOK;
+                    } else if (command.equals("B")) {
+                        promotionPiece = ChessPiece.PieceType.BISHOP;
+                    } else {
+                        return "Invalid response";
+                    }
+                }
+                server.makeMove(authToken, gameID, new ChessMove(start, end, promotionPiece));
+                return "Move made to row " + endRow + " column " + endColumn;
+            } else if (params.length < 4) {
+                return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> not enough parameters";
+            }
+            return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> too many parameters";
+        } catch (IOException e) {
+            return e.getMessage();
+        }
     }
 
-    private String highlightMoves(String[] params) {
+    private String highlightMoves(String... params) {
     }
 
-    private String redrawBoard(String[] params) {
+    private String redrawBoard(String... params) {
+        if (params.length == 0) {
+            if (team == "WHITE") {
+                chessBoard.printChessBoard(System.out, chessGame.getBoard());
+            } else if (team == "BLACK") {
+                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard());
+            }
+        } else if (params.length > 0) {
+            return "Expected: redraw, too many parameters";
+        }
+    }
+
+    private int parsePosition(String pos) {
+        int position = 0;
+        if (pos.equals("a") | pos.equals("1")) {
+            position = 1;
+        } else if (pos.equals("b") | pos.equals("2")) {
+            position = 2;
+        } else if (pos.equals("c") | pos.equals("3")) {
+            position = 3;
+        } else if (pos.equals("d") | pos.equals("4")) {
+            position = 4;
+        } else if (pos.equals("e") | pos.equals("5")) {
+            position = 5;
+        } else if (pos.equals("f") | pos.equals("6")) {
+            position = 6;
+        } else if (pos.equals("g") | pos.equals("7")) {
+            position = 7;
+        } else if (pos.equals("h") | pos.equals("8")) {
+            position = 8;
+        }
+        return position;
     }
 
     public String help() {
         return """
                 - redraw : your chess board
                 - highlight : possible moves
-                - move <START> <END> : make a move
+                - move <START ROW> <START COLUMN> <END ROW> <END COLUMN> : make a move
                 - resign : forfeit a game
                 - leave : when you are done
                 - help : with chess commands

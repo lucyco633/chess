@@ -123,11 +123,11 @@ public class PostLoginClient {
                         userAuthorization);
                 JoinGameResult joinGameResult = server.joinGame(joinGameRequest);
                 //return blank board
-                if (params[1].equals("white")) {
-                    chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
-                } else if (params[1].equals("black")) {
-                    chessBoard.printReversedChessBoard(out, chessBoard.createChessBoardArray());
-                }
+                //if (params[1].equals("white")) {
+                //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
+                //} else if (params[1].equals("black")) {
+                //chessBoard.printReversedChessBoard(out, chessBoard.createChessBoardArray());
+                //}
                 return String.format("Joined game as %s", joinGameResult.playerColor());
             } else if (params.length < 2) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
@@ -150,7 +150,7 @@ public class PostLoginClient {
                 if (Integer.valueOf(params[0]) > gameListStrings.size()) {
                     return "Invalid Game ID\n";
                 }
-                chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
+                //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
                 return String.format("Observing game %s", params[0]);
             } else if (params.length < 3) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";

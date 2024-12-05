@@ -4,10 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.SqlAuthDAO;
-import dataaccess.SqlGameDAO;
-import dataaccess.SqlUserDAO;
+import dataaccess.*;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -132,48 +129,63 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, game over");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-                //LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                //new Gson().toJson(sqlGameDAO.getGame(gameId).game()));
-                //session.getRemote().sendString(new Gson().toJson(loadGameMessage));
-            } else if ((sqlGameDAO.getGame(gameId).game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
-                    sqlGameDAO.getGame(gameId).whiteUsername().equals(sqlAuthDAO.getAuth(authToken).username())) |
-                    (sqlGameDAO.getGame(gameId).game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
-                            sqlGameDAO.getGame(gameId).blackUsername().equals(sqlAuthDAO.getAuth(authToken).username()))) {
+            }
+            GameData gameData = sqlGameDAO.getGame(gameId);
+            String whiteUsername = gameData.whiteUsername();
+            String blackUsername = gameData.blackUsername();
+            String clientUsername = sqlAuthDAO.getAuth(authToken).username();
+            ChessGame chessGame = gameData.game();
+
+            if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
+                    whiteUsername.equals(clientUsername) &&
+                    !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
+                    !chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) |
+                    (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
+                            blackUsername.equals(clientUsername)
+                            && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
+                            && !chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, not your turn");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (!sqlGameDAO.getGame(gameId).whiteUsername().equals(sqlAuthDAO.getAuth(authToken).username()) &&
-                    !sqlGameDAO.getGame(gameId).blackUsername().equals(sqlAuthDAO.getAuth(authToken).username())) {
+            } else if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
+                    whiteUsername.equals(clientUsername) &&
+                    (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) |
+                            chessGame.isInStalemate(ChessGame.TeamColor.WHITE))) |
+                    (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
+                            blackUsername.equals(clientUsername)
+                            && (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
+                            | chessGame.isInStalemate(ChessGame.TeamColor.BLACK)))) && !gameData.resigned()) {
+                //trying to send load game for checkmate here
+                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                        new Gson().toJson(chessGame));
+                connections.broadcast(clientUsername, loadGameMessage);
+            } else if ((!whiteUsername.equals(clientUsername) &&
+                    !blackUsername.equals(clientUsername)) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, you are observing the game");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (sqlGameDAO.getGame(gameId).game().isInCheckmate(sqlGameDAO.getGame(gameId).game().getTeamTurn())) {
-                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                        "Error: Checkmate");
-                session.getRemote().sendString(new Gson().toJson(errorMessage));
-                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                        new Gson().toJson(sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()));
-                connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
-            } else {
-                GameData gameData = sqlGameDAO.getGame(makeMoveCommand.getGameID());
-                ChessGame chessGame = gameData.game();
+            } else if (!gameData.resigned()) {
                 chessGame.makeMove(makeMoveCommand.getChessMove());
+                if (clientUsername.equals(whiteUsername)) {
+                    chessGame.setTeamTurn(ChessGame.TeamColor.BLACK);
+                } else if (clientUsername.equals(blackUsername)) {
+                    chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
+                }
+                sqlGameDAO.updateGame(gameId, whiteUsername, blackUsername, gameData.gameName(), chessGame,
+                        gameData.resigned());
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Move was made");
-                connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), serverMessage);
+                connections.broadcast(clientUsername, serverMessage);
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
-                        new Gson().toJson(sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()));
-                connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
-                connections.sendToClient(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
+                        new Gson().toJson(chessGame));
+                connections.broadcast(clientUsername, loadGameMessage);
+                connections.sendToClient(clientUsername, loadGameMessage);
             }
         } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: " + exception.getMessage());
             connections.broadcast(null, errorMessage);
         } catch (InvalidMoveException e) {
-            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                    "Error: Invalid move");
-            connections.broadcast(null, errorMessage);
         }
     }
 

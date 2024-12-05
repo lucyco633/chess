@@ -1,6 +1,7 @@
 package ui;
 
 import server.ResponseException;
+import ui.repl.PreLoginRepl;
 
 public class ClientMain {
     public static void main(String[] args) throws ResponseException {

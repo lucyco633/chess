@@ -1,12 +1,12 @@
 package ui;
 
-import org.junit.jupiter.api.Test;
 import server.ResponseException;
 import server.ServerFacade;
 import server.requests.LoginRequest;
 import server.requests.RegisterRequest;
 import server.results.LoginResult;
 import server.results.RegisterResult;
+import ui.repl.PostLoginRepl;
 
 import java.util.Arrays;
 
