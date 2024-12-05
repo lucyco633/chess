@@ -83,7 +83,8 @@ public class WebSocketServer {
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
             } else {
                 String rootClientUsername = sqlAuthDAO.getAuth(authToken).username();
-                connections.add(rootClientUsername, session, sqlGameDAO.getGame(userGameCommand.getGameID()).game());
+                connections.add(rootClientUsername, session,
+                        sqlGameDAO.getGame(userGameCommand.getGameID()).game(), gameId);
                 String message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
                         " joined game as observer";
                 if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
@@ -97,14 +98,14 @@ public class WebSocketServer {
                 }
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
-                connections.sendToClient(rootClientUsername, loadGameMessage);
+                connections.sendToClient(rootClientUsername, loadGameMessage, gameId);
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-                connections.broadcast(rootClientUsername, serverMessage);
+                connections.broadcast(rootClientUsername, serverMessage, gameId);
             }
         } catch (SQLException | ResultExceptions | DataAccessException | IOException e) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: " + e.getMessage());
-            connections.broadcast(null, errorMessage);
+            connections.broadcast(null, errorMessage, userGameCommand.getGameID());
         }
     }
 
@@ -158,7 +159,7 @@ public class WebSocketServer {
                 //trying to send load game for checkmate here
                 LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(chessGame));
-                connections.broadcast(clientUsername, loadGameMessage);
+                connections.broadcast(clientUsername, loadGameMessage, gameId);
             } else if ((!whiteUsername.equals(clientUsername) &&
                     !blackUsername.equals(clientUsername)) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
@@ -175,16 +176,16 @@ public class WebSocketServer {
                         gameData.resigned());
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Move was made");
-                connections.broadcast(clientUsername, serverMessage);
+                connections.broadcast(clientUsername, serverMessage, gameId);
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(chessGame));
-                connections.broadcast(clientUsername, loadGameMessage);
-                connections.sendToClient(clientUsername, loadGameMessage);
+                connections.broadcast(clientUsername, loadGameMessage, gameId);
+                connections.sendToClient(clientUsername, loadGameMessage, gameId);
             }
         } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: " + exception.getMessage());
-            connections.broadcast(null, errorMessage);
+            connections.broadcast(null, errorMessage, makeMoveCommand.getGameID());
         } catch (InvalidMoveException e) {
         }
     }
@@ -217,12 +218,12 @@ public class WebSocketServer {
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Game over :(");
                 //session.getRemote().sendString(new Gson().toJson(serverMessage));
-                connections.broadcast(null, serverMessage);
+                connections.broadcast(null, serverMessage, gameId);
             }
         } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {
             ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                     "Error: " + exception.getMessage());
-            connections.broadcast(null, errorMessage);
+            connections.broadcast(null, errorMessage, userGameCommand.getGameID());
         }
     }
 
@@ -244,9 +245,9 @@ public class WebSocketServer {
         } else {
             message = user + "has stopped observing the game";
         }
-        connections.remove(user);
+        connections.remove(user, gameId);
         ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
-        connections.broadcast(user, serverMessage);
+        connections.broadcast(user, serverMessage, gameId);
     }
 
 }
