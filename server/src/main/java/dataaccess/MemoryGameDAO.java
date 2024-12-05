@@ -18,15 +18,15 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game) {
-        GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    public void updateGame(int gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game, boolean resigned) {
+        GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameName, game, resigned);
         gameDB.put(gameID, updatedGame);
     }
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
         Random rand = new Random();
-        GameData newGame = new GameData(rand.nextInt(100), null, null, gameName, new ChessGame());
+        GameData newGame = new GameData(rand.nextInt(100), null, null, gameName, new ChessGame(), false);
         gameDB.put(newGame.gameID(), newGame);
         return newGame;
     }

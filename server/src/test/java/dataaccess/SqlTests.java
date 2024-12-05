@@ -143,18 +143,18 @@ public class SqlTests {
     @Test
     void updateGameSuccess() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
-        SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game());
+        SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game(), false);
         GameData actualGame = SQL_GAME_DAO.getGame(newGame.gameID());
-        GameData expectedGame = new GameData(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game());
+        GameData expectedGame = new GameData(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game(), newGame.resigned());
         assertEquals(actualGame.whiteUsername(), expectedGame.whiteUsername());
     }
 
     @Test
     void updateGameFail() throws ResultExceptions, DataAccessException, SQLException {
         GameData newGame = SQL_GAME_DAO.createGame("Game 1");
-        SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game());
+        SQL_GAME_DAO.updateGame(newGame.gameID(), "lucyco7", "hemmee", newGame.gameName(), newGame.game(), false);
         GameData actualGame = SQL_GAME_DAO.getGame(newGame.gameID());
-        GameData expectedGame = new GameData(newGame.gameID(), "lucyco", "henry", newGame.gameName(), newGame.game());
+        GameData expectedGame = new GameData(newGame.gameID(), "lucyco", "henry", newGame.gameName(), newGame.game(), newGame.resigned());
         assertNotEquals(actualGame.whiteUsername(), expectedGame.whiteUsername());
     }
 

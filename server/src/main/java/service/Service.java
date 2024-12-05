@@ -171,7 +171,8 @@ public class Service {
                         sqlGameDAO.getGame(joinGameRequest.gameID()).whiteUsername(),
                         sqlAuthDAO.getAuth(joinGameRequest.authToken()).username(),
                         sqlGameDAO.getGame(joinGameRequest.gameID()).gameName(),
-                        sqlGameDAO.getGame(joinGameRequest.gameID()).game());
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).game(),
+                        false);
                 joinGameResult = new JoinGameResult(joinGameRequest.playerColor(), joinGameRequest.gameID());
             }
             if (joinGameRequest.playerColor().equals("WHITE")) {
@@ -179,7 +180,8 @@ public class Service {
                         sqlAuthDAO.getAuth(joinGameRequest.authToken()).username(),
                         sqlGameDAO.getGame(joinGameRequest.gameID()).blackUsername(),
                         sqlGameDAO.getGame(joinGameRequest.gameID()).gameName(),
-                        sqlGameDAO.getGame(joinGameRequest.gameID()).game());
+                        sqlGameDAO.getGame(joinGameRequest.gameID()).game(),
+                        false);
                 joinGameResult = new JoinGameResult(joinGameRequest.playerColor(), joinGameRequest.gameID());
             }
             return joinGameResult;

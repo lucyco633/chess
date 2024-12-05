@@ -120,9 +120,7 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid game ID");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (sqlAuthDAO.getAuth(authToken) == null | connections.connections.contains(
-                    new Connection(sqlAuthDAO.getAuth(authToken).username(), session,
-                            sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()))) {
+            } else if (sqlAuthDAO.getAuth(authToken) == null) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid user token");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
@@ -167,10 +165,10 @@ public class WebSocketServer {
         String user = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username();
         String message;
         if (user.equals(sqlGameDAO.getGame(gameId).whiteUsername())) {
-            sqlGameDAO.updateGame(gameId, null, blackUsername, gameName, chessGame);
+            sqlGameDAO.updateGame(gameId, null, blackUsername, gameName, chessGame, false);
             message = user + "has left the game";
         } else if (user.equals(sqlGameDAO.getGame(gameId).blackUsername())) {
-            sqlGameDAO.updateGame(gameId, whiteTeam, null, gameName, chessGame);
+            sqlGameDAO.updateGame(gameId, whiteTeam, null, gameName, chessGame, false);
             message = user + "has left the game";
         } else {
             message = user + "has stopped observing the game";
@@ -178,9 +176,6 @@ public class WebSocketServer {
         connections.remove(user);
         ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         connections.broadcast(user, serverMessage);
-        String game = new Gson().toJson(chessGame);
-        ServerMessage loadGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-        connections.broadcast(null, loadGame);
     }
 
 }
