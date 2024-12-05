@@ -128,6 +128,32 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlGameDAO.getGame(gameId).resigned()) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move, game over");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+                //LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                //new Gson().toJson(sqlGameDAO.getGame(gameId).game()));
+                //session.getRemote().sendString(new Gson().toJson(loadGameMessage));
+            } else if ((sqlGameDAO.getGame(gameId).game().getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
+                    sqlGameDAO.getGame(gameId).whiteUsername().equals(sqlAuthDAO.getAuth(authToken).username())) |
+                    (sqlGameDAO.getGame(gameId).game().getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
+                            sqlGameDAO.getGame(gameId).blackUsername().equals(sqlAuthDAO.getAuth(authToken).username()))) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move, not your turn");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (!sqlGameDAO.getGame(gameId).whiteUsername().equals(sqlAuthDAO.getAuth(authToken).username()) &&
+                    !sqlGameDAO.getGame(gameId).blackUsername().equals(sqlAuthDAO.getAuth(authToken).username())) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move, you are observing the game");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlGameDAO.getGame(gameId).game().isInCheckmate(sqlGameDAO.getGame(gameId).game().getTeamTurn())) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Checkmate");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+                LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
+                        new Gson().toJson(sqlGameDAO.getGame(makeMoveCommand.getGameID()).game()));
+                connections.broadcast(sqlAuthDAO.getAuth(makeMoveCommand.getAuthToken()).username(), loadGameMessage);
             } else {
                 GameData gameData = sqlGameDAO.getGame(makeMoveCommand.getGameID());
                 ChessGame chessGame = gameData.game();
@@ -151,8 +177,32 @@ public class WebSocketServer {
         }
     }
 
-    public void resign(UserGameCommand userGameCommand, Session session) {
-        //what does resign mean? take game out of database?
+    public void resign(UserGameCommand userGameCommand, Session session) throws IOException {
+        try {
+            int gameId = userGameCommand.getGameID();
+            String authToken = userGameCommand.getAuthToken();
+            if (sqlGameDAO.getGame(gameId) == null) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid game ID");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlAuthDAO.getAuth(authToken) == null) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid user token");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else {
+                GameData gameData = sqlGameDAO.getGame(gameId);
+                sqlGameDAO.updateGame(gameId, gameData.whiteUsername(), gameData.blackUsername(),
+                        gameData.gameName(), gameData.game(), true);
+                ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                        "Game over :(");
+                //session.getRemote().sendString(new Gson().toJson(serverMessage));
+                connections.broadcast(null, serverMessage);
+            }
+        } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {
+            ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                    "Error: " + exception.getMessage());
+            connections.broadcast(null, errorMessage);
+        }
     }
 
     public void leave(UserGameCommand userGameCommand, Session session) throws SQLException, ResultExceptions,
