@@ -71,7 +71,7 @@ public class GameplayClient {
         try {
             if (params.length == 0) {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("Are you sure?");
+                System.out.println("Are you sure? [y|n] ");
                 String line = scanner.nextLine();
                 String lineCommandArray[] = line.split(" ", 2);
                 String command = lineCommandArray[0];
@@ -81,10 +81,10 @@ public class GameplayClient {
                 } else if (command.equals("n")) {
                     return "Game not resigned, continue playing";
                 } else {
-                    return "Invalid response";
+                    return "Expected: [y|n], invalid response";
                 }
             } else if (params.length > 0) {
-                return "Too many parameters";
+                return "Expected: resign, too many parameters";
             } else {
                 return "Unexpected parameters";
             }
@@ -101,7 +101,7 @@ public class GameplayClient {
                 int endRow = parsePosition(params[2]);
                 int endColumn = parsePosition(params[3]);
                 if (startRow == 0 | endRow == 0 | startColumn == 0 | endColumn == 0) {
-                    return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> invalid input";
+                    return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN>, invalid input";
                 }
                 ChessPosition start = new ChessPosition(startRow, startColumn);
                 ChessPosition end = new ChessPosition(endRow, endColumn);
@@ -129,27 +129,46 @@ public class GameplayClient {
                 server.makeMove(authToken, gameID, new ChessMove(start, end, promotionPiece));
                 return "Move made to row " + endRow + " column " + endColumn;
             } else if (params.length < 4) {
-                return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> not enough parameters";
+                return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN>, not enough parameters";
             }
-            return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN> too many parameters";
+            return "Expected: move <START ROW> <START COLUMN> <END ROW> <END COLUMN>, too many parameters";
         } catch (IOException e) {
             return e.getMessage();
         }
     }
 
     private String highlightMoves(String... params) {
+        if (params.length == 2) {
+            int row = parsePosition(params[0]);
+            int col = parsePosition(params[1]);
+            if (team == "WHITE" && row != 0 && col != 0) {
+                chessBoard.printChessBoard(System.out, chessGame.getBoard(), true,
+                        chessGame, new ChessPosition(row, col));
+                return "Chess Board";
+            } else if (team == "BLACK" && row != 0 && col != 0) {
+                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), true,
+                        chessGame, new ChessPosition(row, col));
+                return "Chess Board";
+            } else if (row == 0 | col == 0) {
+                return "Expected: highlight <ROW> <COLUMN>, invalid row or column";
+            }
+        }
+        return "Expected: highlight <ROW> <COLUMN>";
     }
 
     private String redrawBoard(String... params) {
         if (params.length == 0) {
             if (team == "WHITE") {
-                chessBoard.printChessBoard(System.out, chessGame.getBoard());
+                chessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
+                        chessGame, null);
+                return "Chess Board";
             } else if (team == "BLACK") {
-                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard());
+                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), false,
+                        chessGame, null);
+                return "Chess Board";
             }
-        } else if (params.length > 0) {
-            return "Expected: redraw, too many parameters";
         }
+        return "Expected: redraw, too many parameters";
     }
 
     private int parsePosition(String pos) {

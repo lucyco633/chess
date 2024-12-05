@@ -134,7 +134,6 @@ public class WebSocketServer {
             String blackUsername = gameData.blackUsername();
             String clientUsername = sqlAuthDAO.getAuth(authToken).username();
             ChessGame chessGame = gameData.game();
-
             if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
                     whiteUsername.equals(clientUsername) &&
                     !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
@@ -159,7 +158,7 @@ public class WebSocketServer {
                     chessGame.setTeamTurn(ChessGame.TeamColor.WHITE);
                 }
                 sqlGameDAO.updateGame(gameId, whiteUsername, blackUsername, gameData.gameName(), chessGame,
-                        gameData.resigned());
+                        false);
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Move was made");
                 connections.broadcast(clientUsername, serverMessage, gameId);
@@ -172,6 +171,18 @@ public class WebSocketServer {
                 if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                     ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             whiteUsername + "is in checkmate");
+                    connections.broadcast(clientUsername, checkmateMessage, gameId);
+                    connections.sendToClient(clientUsername, checkmateMessage, gameId);
+                }
+                if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            blackUsername + "is in check");
+                    connections.broadcast(clientUsername, checkmateMessage, gameId);
+                    connections.sendToClient(clientUsername, checkmateMessage, gameId);
+                }
+                if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
+                            whiteUsername + "is in check");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
@@ -222,7 +233,6 @@ public class WebSocketServer {
                         gameData.gameName(), gameData.game(), true);
                 ServerMessage serverMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                         "Game over :(");
-                //session.getRemote().sendString(new Gson().toJson(serverMessage));
                 connections.broadcast(null, serverMessage, gameId);
             }
         } catch (SQLException | DataAccessException | IOException | ResultExceptions exception) {

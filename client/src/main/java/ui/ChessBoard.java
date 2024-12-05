@@ -18,18 +18,21 @@ public class ChessBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
 
 
-    public void printChessBoard(PrintStream out, chess.ChessBoard chessBoard) {
+    public void printChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
+                                ChessGame chessGame, ChessPosition chessPosition) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
             ArrayList<ArrayList<String>> chessBoardArray = convertBoardToArray(chessBoard);
 
-            printRowOfSquares(out, chessBoardArray.get(boardRow), boardRow, chessBoard);
+            printRowOfSquares(out, chessBoardArray.get(boardRow), boardRow, chessBoard, printValid,
+                    chessGame, chessPosition);
 
         }
     }
 
-    public void printReversedChessBoard(PrintStream out, chess.ChessBoard chessBoard) {
+    public void printReversedChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
+                                        ChessGame chessGame, ChessPosition chessPosition) {
 
         for (int boardRow = BOARD_SIZE_IN_SQUARES - 1; boardRow >= 0; --boardRow) {
 
@@ -37,19 +40,29 @@ public class ChessBoard {
 
             Collections.reverse(chessBoardArray.get(boardRow));
 
-            printRowOfSquares(out, chessBoardArray.get(boardRow), 9 - boardRow, chessBoard);
+            printRowOfSquares(out, chessBoardArray.get(boardRow), 9 - boardRow, chessBoard, printValid,
+                    chessGame, chessPosition);
 
         }
     }
 
-    private Collection<ChessMove> findValidMoves(chess.ChessGame chessGame, ChessPosition startPosition) {
+
+    public static Collection<ChessMove> findValidMoves(chess.ChessGame chessGame, ChessPosition startPosition) {
         Collection<ChessMove> validMoves = chessGame.validMoves(startPosition);
         return validMoves;
     }
 
     private static void printRowOfSquares(PrintStream out, ArrayList<String> chessRow, int rowNum,
-                                          chess.ChessBoard chessBoard) {
+                                          chess.ChessBoard chessBoard, boolean printValid, ChessGame chessGame,
+                                          ChessPosition startPosition) {
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
+            ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
+            ChessMove chessMove = null;
+            Collection<ChessMove> validMoves = null;
+            if (startPosition != null) {
+                chessMove = new ChessMove(startPosition, chessPosition, null);
+                validMoves = findValidMoves(chessGame, startPosition);
+            }
             if (boardCol == 0 || boardCol == 9) {
                 drawBorder(out, boardCol, chessRow);
             }
@@ -60,14 +73,26 @@ public class ChessBoard {
 
             if (rowNum % 2 != 0 && rowNum != 9) {
                 if (boardCol % 2 != 0 && boardCol != 9) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    checkTeam(out, chessBoard, rowNum, boardCol);
-                    out.print(chessRow.get(boardCol));
+                    if (printValid && validMoves.contains(chessMove)) {
+                        out.print(SET_BG_COLOR_GREEN);
+                        checkTeam(out, chessBoard, rowNum, boardCol);
+                        out.print(chessRow.get(boardCol));
+                    } else {
+                        out.print(SET_BG_COLOR_LIGHT_GREY);
+                        checkTeam(out, chessBoard, rowNum, boardCol);
+                        out.print(chessRow.get(boardCol));
+                    }
                 }
                 if (boardCol % 2 == 0 && boardCol != 0) {
-                    out.print(SET_BG_COLOR_DARK_GREY);
-                    checkTeam(out, chessBoard, rowNum, boardCol);
-                    out.print(chessRow.get(boardCol));
+                    if (printValid && validMoves.contains(chessMove)) {
+                        out.print(SET_BG_COLOR_DARK_GREEN);
+                        checkTeam(out, chessBoard, rowNum, boardCol);
+                        out.print(chessRow.get(boardCol));
+                    } else {
+                        out.print(SET_BG_COLOR_DARK_GREY);
+                        checkTeam(out, chessBoard, rowNum, boardCol);
+                        out.print(chessRow.get(boardCol));
+                    }
                 }
             }
 
