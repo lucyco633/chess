@@ -189,6 +189,15 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid user token");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (!sqlAuthDAO.getAuth(authToken).username().equals(sqlGameDAO.getGame(gameId).whiteUsername()) &&
+                    !sqlAuthDAO.getAuth(authToken).username().equals(sqlGameDAO.getGame(gameId).blackUsername())) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Cannot resign, you are observing");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlGameDAO.getGame(gameId).resigned()) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Cannot resign, game already resigned");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
             } else {
                 GameData gameData = sqlGameDAO.getGame(gameId);
                 sqlGameDAO.updateGame(gameId, gameData.whiteUsername(), gameData.blackUsername(),
