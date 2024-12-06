@@ -4,8 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import server.ResponseException;
-import server.ServerFacade;
+import server.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,18 +18,31 @@ public class GameplayClient {
     private final ServerFacade server;
     private String team;
     private ChessBoard chessBoard;
+    private final NotificationMessageHandler notificationMessageHandler;
+    private final ErrorMessageHandler errorMessageHandler;
+    private final LoadGameMessageHandler loadGameMessageHandler;
+    private final ServerMessageHandler serverMessageHandler;
 
 
-    public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team)
+    public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team,
+                          NotificationMessageHandler notificationMessageHandler,
+                          ErrorMessageHandler errorMessageHandler,
+                          LoadGameMessageHandler loadGameMessageHandler,
+                          ServerMessageHandler serverMessageHandler)
             throws ResponseException {
         this.authToken = authToken;
         this.gameID = gameID;
         this.chessGame = chessGame;
         this.team = team;
-        server = new ServerFacade(url);
+        this.notificationMessageHandler = notificationMessageHandler;
+        this.errorMessageHandler = errorMessageHandler;
+        this.loadGameMessageHandler = loadGameMessageHandler;
+        this.serverMessageHandler = serverMessageHandler;
+        server = new ServerFacade(url, notificationMessageHandler, errorMessageHandler,
+                loadGameMessageHandler, serverMessageHandler);
     }
 
-    public String eval(String input) {
+    public String eval(String input, ChessGame chessGame) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -194,7 +206,7 @@ public class GameplayClient {
     public String help() {
         return """
                 - redraw : your chess board
-                - highlight : possible moves
+                - highlight <ROW> <COLUMN> : possible moves
                 - move <START ROW> <START COLUMN> <END ROW> <END COLUMN> : make a move
                 - resign : forfeit a game
                 - leave : when you are done

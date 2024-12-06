@@ -2,8 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import model.GameData;
-import server.ResponseException;
-import server.ServerFacade;
+import server.*;
 import server.requests.*;
 import server.results.CreateGameResult;
 import server.results.JoinGameResult;
@@ -22,22 +21,37 @@ public class PostLoginClient {
     private final ChessBoard chessBoard;
     private final String url;
     private String team;
+    private ChessGame chessGame;
+    private final NotificationMessageHandler notificationMessageHandler;
+    private final ErrorMessageHandler errorMessageHandler;
+    private final LoadGameMessageHandler loadGameMessageHandler;
+    private final ServerMessageHandler serverMessageHandler;
 
 
     public String getUrl() {
         return url;
     }
 
-    public PostLoginClient(String serverUrl, String userAuthorization) throws ResponseException {
-        server = new ServerFacade(serverUrl);
+    public PostLoginClient(String serverUrl, String userAuthorization,
+                           NotificationMessageHandler notificationMessageHandler,
+                           ErrorMessageHandler errorMessageHandler,
+                           LoadGameMessageHandler loadGameMessageHandler,
+                           ServerMessageHandler serverMessageHandler) throws ResponseException {
         this.userAuthorization = userAuthorization;
         this.url = serverUrl;
+        this.notificationMessageHandler = notificationMessageHandler;
+        this.errorMessageHandler = errorMessageHandler;
+        this.loadGameMessageHandler = loadGameMessageHandler;
+        this.serverMessageHandler = serverMessageHandler;
         this.chessBoard = new ChessBoard();
         this.gameListStrings = new ArrayList<>();
+        server = new ServerFacade(serverUrl, notificationMessageHandler, errorMessageHandler,
+                loadGameMessageHandler, serverMessageHandler);
     }
 
-    public String eval(String input) {
+    public String eval(String input, ChessGame chessGameReceived) {
         try {
+            chessGame = chessGameReceived;
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -96,8 +110,6 @@ public class PostLoginClient {
                 ListGamesRequest listGamesRequest = new ListGamesRequest(userAuthorization);
                 ListGamesResult listGamesResult = server.listGames(listGamesRequest);
                 Collection<String> gamesList = new ArrayList<>();
-                //create map to hold onto new game number associated with game
-                //use list? use list size to add/find games
                 gameListStrings = new ArrayList<>();
                 for (GameData game : listGamesResult.games()) {
                     gameListStrings.add(game.gameID());
@@ -105,7 +117,6 @@ public class PostLoginClient {
                             gameListStrings.size(), game.gameName(),
                             game.whiteUsername(), game.blackUsername()));
                 }
-
                 String gamesListString = "";
 
                 for (String game : gamesList) {
@@ -131,7 +142,7 @@ public class PostLoginClient {
                         userAuthorization);
                 JoinGameResult joinGameResult = server.joinGame(joinGameRequest);
                 team = joinGameResult.playerColor();
-                //sendToGameplay(joinGameRequest.gameID(), );
+                sendToGameplay(joinGameRequest.gameID());
                 return String.format("Joined game as %s", joinGameResult.playerColor());
             } else if (params.length < 2) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
@@ -156,6 +167,7 @@ public class PostLoginClient {
                 }
                 //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
                 team = "WHITE";
+                sendToGameplay(gameListStrings.get(Integer.valueOf(params[0]) - 1));
                 return String.format("Observing game %s", params[0]);
             } else if (params.length < 3) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
@@ -199,8 +211,8 @@ public class PostLoginClient {
         return team;
     }
 
-    private void sendToGameplay(int gameId, ChessGame chessGame) throws ResponseException {
+    private void sendToGameplay(int gameId) throws ResponseException {
         GameplayRepl gameplayRepl = new GameplayRepl(getUrl(), getUserAuthorization(), gameId, chessGame, getTeam());
-        gameplayRepl.run();
+        gameplayRepl.run(chessGame);
     }
 }

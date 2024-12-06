@@ -18,11 +18,17 @@ public class WebSocketCommunicator extends Endpoint {
     NotificationMessageHandler notificationMessageHandler;
     LoadGameMessageHandler loadGameMessageHandler;
 
-    public WebSocketCommunicator(String url, ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public WebSocketCommunicator(String url, ServerMessageHandler serverMessageHandler,
+                                 ErrorMessageHandler errorMessageHandler,
+                                 NotificationMessageHandler notificationMessageHandler,
+                                 LoadGameMessageHandler loadGameMessageHandler) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
             this.serverMessageHandler = serverMessageHandler;
+            this.errorMessageHandler = errorMessageHandler;
+            this.notificationMessageHandler = notificationMessageHandler;
+            this.loadGameMessageHandler = loadGameMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);

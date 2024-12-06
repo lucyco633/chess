@@ -1,17 +1,23 @@
 package ui.repl;
 
-import server.ResponseException;
+import server.*;
 import ui.PreLoginClient;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class PreLoginRepl {
+public class PreLoginRepl implements NotificationMessageHandler, ErrorMessageHandler,
+        LoadGameMessageHandler, ServerMessageHandler {
     private final PreLoginClient client;
 
     public PreLoginRepl(String serverUrl) throws ResponseException {
-        client = new PreLoginClient(serverUrl);
+        client = new PreLoginClient(serverUrl, this, this,
+                this, this);
     }
 
     public void run() {
@@ -42,4 +48,19 @@ public class PreLoginRepl {
         System.out.print("\n" + "What do you want to do?" + ">>> ");
     }
 
+    @Override
+    public void errorNotify(ErrorMessage errorMessage) {
+    }
+
+    @Override
+    public void loadGame(LoadGameMessage loadGameMessage) {
+    }
+
+    @Override
+    public void notify(NotificationMessage notificationMessage) {
+    }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
+    }
 }

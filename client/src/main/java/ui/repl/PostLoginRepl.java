@@ -2,25 +2,26 @@ package ui.repl;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
-import server.ErrorMessageHandler;
-import server.LoadGameMessageHandler;
-import server.NotificationMessageHandler;
-import server.ResponseException;
+import server.*;
 import ui.ChessBoard;
 import ui.PostLoginClient;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
 
-public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessageHandler, ErrorMessageHandler {
+public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessageHandler, ErrorMessageHandler,
+        ServerMessageHandler {
     private final PostLoginClient client;
+    public ChessGame chessGame;
 
     public PostLoginRepl(String serverUrl, String userAuthorization) throws ResponseException {
-        client = new PostLoginClient(serverUrl, userAuthorization);
+        client = new PostLoginClient(serverUrl, userAuthorization, this,
+                this, this, this);
     }
 
     public void run() {
@@ -36,8 +37,11 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
             String command = lineCommandArray[0];
 
             try {
-                result = client.eval(line);
+                result = client.eval(line, chessGame);
                 System.out.print(result);
+                if (command.equals("logout")) {
+                    return;
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -59,15 +63,20 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
     @Override
     public void loadGame(LoadGameMessage loadGameMessage) {
         String chessGameString = loadGameMessage.getGame();
-        ChessGame chessGame = new Gson().fromJson(chessGameString, ChessGame.class);
-        chess.ChessBoard chessBoardReal = chessGame.getBoard();
+        ChessGame chessGameReceived = new Gson().fromJson(chessGameString, ChessGame.class);
+        chess.ChessBoard chessBoardReal = chessGameReceived.getBoard();
         ChessBoard chessBoard = new ChessBoard();
+        chessGame = chessGameReceived;
         //add to print correct board for black too
-        chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGame, null);
+        chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGameReceived, null);
     }
 
     @Override
     public void notify(NotificationMessage notificationMessage) {
         System.out.print(notificationMessage.getMessage());
+    }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
     }
 }

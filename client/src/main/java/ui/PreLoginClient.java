@@ -1,7 +1,6 @@
 package ui;
 
-import server.ResponseException;
-import server.ServerFacade;
+import server.*;
 import server.requests.LoginRequest;
 import server.requests.RegisterRequest;
 import server.results.LoginResult;
@@ -15,10 +14,19 @@ public class PreLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
     private String userAuthorization;
+    private final NotificationMessageHandler notificationMessageHandler;
+    private final ErrorMessageHandler errorMessageHandler;
+    private final LoadGameMessageHandler loadGameMessageHandler;
+    private final ServerMessageHandler serverMessageHandler;
 
-    public PreLoginClient(String serverUrl) throws ResponseException {
-        server = new ServerFacade(serverUrl);
+    public PreLoginClient(String serverUrl, NotificationMessageHandler notificationMessageHandler, ErrorMessageHandler errorMessageHandler, LoadGameMessageHandler loadGameMessageHandler, ServerMessageHandler serverMessageHandler) throws ResponseException {
         this.serverUrl = serverUrl;
+        this.notificationMessageHandler = notificationMessageHandler;
+        this.errorMessageHandler = errorMessageHandler;
+        this.loadGameMessageHandler = loadGameMessageHandler;
+        this.serverMessageHandler = serverMessageHandler;
+        server = new ServerFacade(serverUrl, notificationMessageHandler, errorMessageHandler,
+                loadGameMessageHandler, serverMessageHandler);
     }
 
     public String eval(String input) {
