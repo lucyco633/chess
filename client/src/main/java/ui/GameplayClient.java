@@ -6,9 +6,6 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import server.ResponseException;
 import server.ServerFacade;
-import server.ServerMessageHandler;
-import server.WebSocketFacade;
-import websocket.messages.ServerMessage;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,7 +21,8 @@ public class GameplayClient {
     private ChessBoard chessBoard;
 
 
-    public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team) throws ResponseException {
+    public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team)
+            throws ResponseException {
         this.authToken = authToken;
         this.gameID = gameID;
         this.chessGame = chessGame;

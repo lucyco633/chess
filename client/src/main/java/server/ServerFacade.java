@@ -83,7 +83,8 @@ public class ServerFacade {
         webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken)
+            throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
@@ -104,7 +105,8 @@ public class ServerFacade {
     }
 
 
-    private <T> T makeRequestListGames(String method, String path, ListGamesRequest request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequestListGames(String method, String path, ListGamesRequest request, Class<T> responseClass)
+            throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();

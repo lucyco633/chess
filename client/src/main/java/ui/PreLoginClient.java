@@ -84,8 +84,6 @@ public class PreLoginClient {
                 """;
     }
 
-    //add getauth function
-
 
     public String getServerUrl() {
         return serverUrl;

@@ -13,7 +13,6 @@ import ui.repl.GameplayRepl;
 import java.io.IOException;
 import java.util.*;
 
-import static java.lang.System.out;
 
 public class PostLoginClient {
 
