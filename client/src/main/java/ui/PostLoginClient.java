@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import model.GameData;
 import server.ResponseException;
 import server.ServerFacade;
@@ -7,6 +8,7 @@ import server.requests.*;
 import server.results.CreateGameResult;
 import server.results.JoinGameResult;
 import server.results.ListGamesResult;
+import ui.repl.GameplayRepl;
 
 import java.io.IOException;
 import java.util.*;
@@ -19,11 +21,18 @@ public class PostLoginClient {
     private String userAuthorization;
     private List<Integer> gameListStrings;
     private final ChessBoard chessBoard;
+    private final String url;
+    private String team;
 
+
+    public String getUrl() {
+        return url;
+    }
 
     public PostLoginClient(String serverUrl, String userAuthorization) throws ResponseException {
         server = new ServerFacade(serverUrl);
         this.userAuthorization = userAuthorization;
+        this.url = serverUrl;
         this.chessBoard = new ChessBoard();
         this.gameListStrings = new ArrayList<>();
     }
@@ -122,12 +131,8 @@ public class PostLoginClient {
                         gameListStrings.get(Integer.valueOf(params[0]) - 1),
                         userAuthorization);
                 JoinGameResult joinGameResult = server.joinGame(joinGameRequest);
-                //return blank board
-                //if (params[1].equals("white")) {
-                //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
-                //} else if (params[1].equals("black")) {
-                //chessBoard.printReversedChessBoard(out, chessBoard.createChessBoardArray());
-                //}
+                team = joinGameResult.playerColor();
+                //sendToGameplay(joinGameRequest.gameID(), );
                 return String.format("Joined game as %s", joinGameResult.playerColor());
             } else if (params.length < 2) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
@@ -151,6 +156,7 @@ public class PostLoginClient {
                     return "Invalid Game ID\n";
                 }
                 //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
+                team = "WHITE";
                 return String.format("Observing game %s", params[0]);
             } else if (params.length < 3) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
@@ -172,5 +178,30 @@ public class PostLoginClient {
                 - quit : playing chess
                 - help : with chess commands
                 """;
+    }
+
+    public ChessBoard getChessBoard() {
+        return chessBoard;
+    }
+
+    public List<Integer> getGameListStrings() {
+        return gameListStrings;
+    }
+
+    public String getUserAuthorization() {
+        return userAuthorization;
+    }
+
+    public ServerFacade getServer() {
+        return server;
+    }
+
+    public String getTeam() {
+        return team;
+    }
+
+    private void sendToGameplay(int gameId, ChessGame chessGame) throws ResponseException {
+        GameplayRepl gameplayRepl = new GameplayRepl(getUrl(), getUserAuthorization(), gameId, chessGame, getTeam());
+        gameplayRepl.run();
     }
 }

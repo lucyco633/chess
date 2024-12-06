@@ -24,4 +24,8 @@ public class LoadGameMessage extends ServerMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), game);
     }
+
+    public String getGame() {
+        return game;
+    }
 }

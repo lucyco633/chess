@@ -174,13 +174,13 @@ public class WebSocketServer {
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
-                if (chessGame.isInCheck(ChessGame.TeamColor.BLACK)) {
+                if (chessGame.isInCheck(ChessGame.TeamColor.BLACK) && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
                     ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             blackUsername + "is in check");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
-                if (chessGame.isInCheck(ChessGame.TeamColor.WHITE)) {
+                if (chessGame.isInCheck(ChessGame.TeamColor.WHITE) && !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                     ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             whiteUsername + "is in check");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);

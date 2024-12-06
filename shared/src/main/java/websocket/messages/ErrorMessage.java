@@ -24,4 +24,8 @@ public class ErrorMessage extends ServerMessage {
     public int hashCode() {
         return Objects.hash(super.hashCode(), errorMessage);
     }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

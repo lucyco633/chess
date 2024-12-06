@@ -156,7 +156,7 @@ public class GameplayClient {
         return "Expected: highlight <ROW> <COLUMN>";
     }
 
-    private String redrawBoard(String... params) {
+    public String redrawBoard(String... params) {
         if (params.length == 0) {
             if (team == "WHITE") {
                 chessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
