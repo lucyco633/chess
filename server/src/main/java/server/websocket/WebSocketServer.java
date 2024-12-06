@@ -163,24 +163,26 @@ public class WebSocketServer {
                         "Move was made");
                 connections.broadcast(clientUsername, serverMessage, gameId);
                 if (chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            blackUsername + "is in checkmate");
+                    ServerMessage checkmateMessage = new NotificationMessage(
+                            ServerMessage.ServerMessageType.NOTIFICATION, blackUsername + "is in checkmate");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
                 if (chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                    ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            whiteUsername + "is in checkmate");
+                    ServerMessage checkmateMessage = new NotificationMessage(
+                            ServerMessage.ServerMessageType.NOTIFICATION, whiteUsername + "is in checkmate");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
-                if (chessGame.isInCheck(ChessGame.TeamColor.BLACK) && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                if (chessGame.isInCheck(ChessGame.TeamColor.BLACK) &&
+                        !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)) {
                     ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             blackUsername + "is in check");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
                     connections.sendToClient(clientUsername, checkmateMessage, gameId);
                 }
-                if (chessGame.isInCheck(ChessGame.TeamColor.WHITE) && !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                if (chessGame.isInCheck(ChessGame.TeamColor.WHITE) &&
+                        !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE)) {
                     ServerMessage checkmateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
                             whiteUsername + "is in check");
                     connections.broadcast(clientUsername, checkmateMessage, gameId);
@@ -188,8 +190,8 @@ public class WebSocketServer {
                 }
                 if (chessGame.isInStalemate(ChessGame.TeamColor.BLACK) |
                         chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) {
-                    ServerMessage stalemateMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION,
-                            "Stalemate");
+                    ServerMessage stalemateMessage = new NotificationMessage(
+                            ServerMessage.ServerMessageType.NOTIFICATION, "Stalemate");
                     connections.broadcast(clientUsername, stalemateMessage, gameId);
                     connections.sendToClient(clientUsername, stalemateMessage, gameId);
                 }
