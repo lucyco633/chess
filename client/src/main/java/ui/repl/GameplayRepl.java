@@ -10,6 +10,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
@@ -18,13 +19,12 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
         ServerMessageHandler {
     private final GameplayClient client;
 
-    public GameplayRepl(String url, String authToken, int gameId,
-                        ChessGame chessGame, String team) throws ResponseException {
-        client = new GameplayClient(url, authToken, gameId, chessGame, team, this,
+    public GameplayRepl(String url, String authToken, int gameId, String team) throws ResponseException {
+        client = new GameplayClient(url, authToken, gameId, this,
                 this, this, this);
     }
 
-    public void run(ChessGame chessGame) {
+    public void run() {
         System.out.println(ROOK_CHARACTER + "Your chess game. Select a command to start." + ROOK_CHARACTER);
         System.out.print(client.help());
 
@@ -37,7 +37,7 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
             String command = lineCommandArray[0];
 
             try {
-                result = client.eval(line, chessGame);
+                result = client.eval(line);
                 System.out.print(result);
                 if (command.equals("leave")) {
                     return;
@@ -52,7 +52,7 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
 
 
     private void printPrompt() {
-        System.out.print("\n" + "What do you want to do?" + ">>> ");
+        System.out.print("\nWhat do you want to do? >>> \n");
     }
 
     @Override
@@ -63,11 +63,16 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
     @Override
     public void loadGame(LoadGameMessage loadGameMessage) {
         String chessGameString = loadGameMessage.getGame();
-        ChessGame chessGame = new Gson().fromJson(chessGameString, ChessGame.class);
-        chess.ChessBoard chessBoardReal = chessGame.getBoard();
+        ChessGame chessGameRecieved = new Gson().fromJson(chessGameString, ChessGame.class);
+        chess.ChessBoard chessBoardReal = chessGameRecieved.getBoard();
         ChessBoard chessBoard = new ChessBoard();
+        GameplayClient.chessGame = chessGameRecieved;
         //add to print correct board for black too
-        chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGame, null);
+        if (Objects.equals(GameplayClient.team, "BLACK")) {
+            chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGameRecieved, null);
+        } else {
+            chessBoard.printReversedChessBoard(System.out, chessBoardReal, false, chessGameRecieved, null);
+        }
     }
 
     @Override

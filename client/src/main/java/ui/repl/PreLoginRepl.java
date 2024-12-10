@@ -45,7 +45,7 @@ public class PreLoginRepl implements NotificationMessageHandler, ErrorMessageHan
 
 
     private void printPrompt() {
-        System.out.print("\n" + "What do you want to do?" + ">>> ");
+        System.out.print("\nWhat do you want to do? >>> \n");
     }
 
     @Override

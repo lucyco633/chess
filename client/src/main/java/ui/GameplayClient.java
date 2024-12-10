@@ -14,17 +14,16 @@ import java.util.Scanner;
 public class GameplayClient {
     private int gameID;
     private String authToken;
-    private ChessGame chessGame;
+    public static ChessGame chessGame;
+    public static String team;
     private final ServerFacade server;
-    private String team;
-    private ChessBoard chessBoard;
     private final NotificationMessageHandler notificationMessageHandler;
     private final ErrorMessageHandler errorMessageHandler;
     private final LoadGameMessageHandler loadGameMessageHandler;
     private final ServerMessageHandler serverMessageHandler;
 
 
-    public GameplayClient(String url, String authToken, int gameID, ChessGame chessGame, String team,
+    public GameplayClient(String url, String authToken, int gameID,
                           NotificationMessageHandler notificationMessageHandler,
                           ErrorMessageHandler errorMessageHandler,
                           LoadGameMessageHandler loadGameMessageHandler,
@@ -32,8 +31,6 @@ public class GameplayClient {
             throws ResponseException {
         this.authToken = authToken;
         this.gameID = gameID;
-        this.chessGame = chessGame;
-        this.team = team;
         this.notificationMessageHandler = notificationMessageHandler;
         this.errorMessageHandler = errorMessageHandler;
         this.loadGameMessageHandler = loadGameMessageHandler;
@@ -42,7 +39,7 @@ public class GameplayClient {
                 loadGameMessageHandler, serverMessageHandler);
     }
 
-    public String eval(String input, ChessGame chessGame) {
+    public String eval(String input) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -151,12 +148,12 @@ public class GameplayClient {
         if (params.length == 2) {
             int row = parsePosition(params[0]);
             int col = parsePosition(params[1]);
-            if (team == "WHITE" && row != 0 && col != 0) {
-                chessBoard.printChessBoard(System.out, chessGame.getBoard(), true,
+            if (Objects.equals(team, "WHITE") && row != 0 && col != 0) {
+                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), true,
                         chessGame, new ChessPosition(row, col));
                 return "Chess Board";
-            } else if (team == "BLACK" && row != 0 && col != 0) {
-                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), true,
+            } else if (Objects.equals(team, "BLACK") && row != 0 && col != 0) {
+                ChessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), true,
                         chessGame, new ChessPosition(row, col));
                 return "Chess Board";
             } else if (row == 0 | col == 0) {
@@ -168,12 +165,12 @@ public class GameplayClient {
 
     public String redrawBoard(String... params) {
         if (params.length == 0) {
-            if (team == "WHITE") {
-                chessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
+            if (Objects.equals(team, "WHITE")) {
+                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
                         chessGame, null);
                 return "Chess Board";
-            } else if (team == "BLACK") {
-                chessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), false,
+            } else if (Objects.equals(team, "BLACK")) {
+                ChessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), false,
                         chessGame, null);
                 return "Chess Board";
             }

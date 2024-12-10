@@ -55,7 +55,7 @@ public class WebSocketServer {
 
         UserGameCommand userGameCommand = new Gson().fromJson(message, UserGameCommand.class);
         MakeMoveCommand makeMoveCommand = null;
-        if (userGameCommand.getCommandType().equals(UserGameCommand.CommandType.MAKE_MOVE)) {
+        if (userGameCommand.getCommandType() == UserGameCommand.CommandType.MAKE_MOVE) {
             makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
         }
 
@@ -139,14 +139,14 @@ public class WebSocketServer {
                     !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
                     !chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) |
                     (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
-                            blackUsername.equals(clientUsername)
+                            Objects.equals(blackUsername, clientUsername)
                             && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
                             && !chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, not your turn");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if ((!whiteUsername.equals(clientUsername) &&
-                    !blackUsername.equals(clientUsername)) && !gameData.resigned()) {
+            } else if ((!Objects.equals(whiteUsername, clientUsername) &&
+                    !Objects.equals(blackUsername, clientUsername)) && !gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, you are observing the game");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));

@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.GameData;
 import server.*;
 import server.requests.*;
@@ -21,7 +22,6 @@ public class PostLoginClient {
     private final ChessBoard chessBoard;
     private final String url;
     private String team;
-    private ChessGame chessGame;
     private final NotificationMessageHandler notificationMessageHandler;
     private final ErrorMessageHandler errorMessageHandler;
     private final LoadGameMessageHandler loadGameMessageHandler;
@@ -49,9 +49,8 @@ public class PostLoginClient {
                 loadGameMessageHandler, serverMessageHandler);
     }
 
-    public String eval(String input, ChessGame chessGameReceived) {
+    public String eval(String input) {
         try {
-            chessGame = chessGameReceived;
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -141,7 +140,7 @@ public class PostLoginClient {
                         gameListStrings.get(Integer.valueOf(params[0]) - 1),
                         userAuthorization);
                 JoinGameResult joinGameResult = server.joinGame(joinGameRequest);
-                team = joinGameResult.playerColor();
+                GameplayClient.team = joinGameResult.playerColor();
                 sendToGameplay(joinGameRequest.gameID());
                 return String.format("Joined game as %s", joinGameResult.playerColor());
             } else if (params.length < 2) {
@@ -165,7 +164,6 @@ public class PostLoginClient {
                 if (Integer.valueOf(params[0]) > gameListStrings.size()) {
                     return "Invalid Game ID\n";
                 }
-                //chessBoard.printChessBoard(out, chessBoard.createChessBoardArray());
                 team = "WHITE";
                 sendToGameplay(gameListStrings.get(Integer.valueOf(params[0]) - 1));
                 return String.format("Observing game %s", params[0]);
@@ -212,7 +210,7 @@ public class PostLoginClient {
     }
 
     private void sendToGameplay(int gameId) throws ResponseException {
-        GameplayRepl gameplayRepl = new GameplayRepl(getUrl(), getUserAuthorization(), gameId, chessGame, getTeam());
-        gameplayRepl.run(chessGame);
+        GameplayRepl gameplayRepl = new GameplayRepl(getUrl(), getUserAuthorization(), gameId, getTeam());
+        gameplayRepl.run();
     }
 }

@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import server.*;
 import ui.ChessBoard;
+import ui.GameplayClient;
 import ui.PostLoginClient;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -17,7 +18,6 @@ import static ui.EscapeSequences.ROOK_CHARACTER;
 public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessageHandler, ErrorMessageHandler,
         ServerMessageHandler {
     private final PostLoginClient client;
-    public ChessGame chessGame;
 
     public PostLoginRepl(String serverUrl, String userAuthorization) throws ResponseException {
         client = new PostLoginClient(serverUrl, userAuthorization, this,
@@ -37,7 +37,7 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
             String command = lineCommandArray[0];
 
             try {
-                result = client.eval(line, chessGame);
+                result = client.eval(line);
                 System.out.print(result);
                 if (command.equals("logout")) {
                     return;
@@ -52,7 +52,7 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
 
 
     private void printPrompt() {
-        System.out.print("\n" + "What do you want to do?" + ">>> ");
+        System.out.print("\nWhat do you want to do? >>> \n");
     }
 
     @Override
@@ -66,7 +66,7 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
         ChessGame chessGameReceived = new Gson().fromJson(chessGameString, ChessGame.class);
         chess.ChessBoard chessBoardReal = chessGameReceived.getBoard();
         ChessBoard chessBoard = new ChessBoard();
-        chessGame = chessGameReceived;
+        GameplayClient.chessGame = chessGameReceived;
         //add to print correct board for black too
         chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGameReceived, null);
     }

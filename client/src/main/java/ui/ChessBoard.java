@@ -18,30 +18,30 @@ public class ChessBoard {
     private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
 
 
-    public void printChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
-                                ChessGame chessGame, ChessPosition chessPosition) {
+    public static void printReversedChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
+                                               ChessGame chessGame, ChessPosition chessPosition) {
 
         for (int boardRow = 0; boardRow < BOARD_SIZE_IN_SQUARES; ++boardRow) {
 
             ArrayList<ArrayList<String>> chessBoardArray = convertBoardToArray(chessBoard);
 
+            Collections.reverse(chessBoardArray.get(9 - boardRow));
+
             printRowOfSquares(out, chessBoardArray.get(boardRow), boardRow, chessBoard, printValid,
-                    chessGame, chessPosition);
+                    chessGame, chessPosition, true);
 
         }
     }
 
-    public void printReversedChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
-                                        ChessGame chessGame, ChessPosition chessPosition) {
+    public static void printChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
+                                       ChessGame chessGame, ChessPosition chessPosition) {
 
         for (int boardRow = BOARD_SIZE_IN_SQUARES - 1; boardRow >= 0; --boardRow) {
 
             ArrayList<ArrayList<String>> chessBoardArray = convertBoardToArray(chessBoard);
 
-            Collections.reverse(chessBoardArray.get(boardRow));
-
             printRowOfSquares(out, chessBoardArray.get(boardRow), 9 - boardRow, chessBoard, printValid,
-                    chessGame, chessPosition);
+                    chessGame, chessPosition, false);
 
         }
     }
@@ -54,7 +54,7 @@ public class ChessBoard {
 
     private static void printRowOfSquares(PrintStream out, ArrayList<String> chessRow, int rowNum,
                                           chess.ChessBoard chessBoard, boolean printValid, ChessGame chessGame,
-                                          ChessPosition startPosition) {
+                                          ChessPosition startPosition, boolean printReversed) {
         for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
             ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
             ChessMove chessMove = null;
@@ -68,24 +68,52 @@ public class ChessBoard {
             }
 
             if ((rowNum == 0 || rowNum == 9) && (boardCol != 0 && boardCol != 9)) {
-                drawBorder(out, boardCol, chessRow);
+                if (printReversed) {
+                    drawBorder(out, 9 - boardCol, chessRow);
+                } else {
+                    drawBorder(out, boardCol, chessRow);
+                }
             }
 
             if (rowNum % 2 != 0 && rowNum != 9) {
                 if (boardCol % 2 != 0 && boardCol != 9) {
-                    printLightSquare(printValid, validMoves, chessMove, out, chessBoard, rowNum, boardCol, chessRow);
+                    if (printReversed) {
+                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, 9 - boardCol, chessRow, printReversed);
+                    } else {
+                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, boardCol, chessRow, printReversed);
+                    }
                 }
                 if (boardCol % 2 == 0 && boardCol != 0) {
-                    printDarkSquare(printValid, validMoves, chessMove, out, chessBoard, rowNum, boardCol, chessRow);
+                    if (printReversed) {
+                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, 9 - boardCol, chessRow, printReversed);
+                    } else {
+                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, boardCol, chessRow, printReversed);
+                    }
                 }
             }
 
             if (rowNum % 2 == 0 && rowNum != 0 && rowNum != 9) {
                 if (boardCol % 2 == 0 && boardCol != 0) {
-                    printLightSquare(printValid, validMoves, chessMove, out, chessBoard, rowNum, boardCol, chessRow);
+                    if (printReversed) {
+                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, 9 - boardCol, chessRow, printReversed);
+                    } else {
+                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, boardCol, chessRow, printReversed);
+                    }
                 }
                 if (boardCol % 2 != 0 && boardCol != 9) {
-                    printDarkSquare(printValid, validMoves, chessMove, out, chessBoard, rowNum, boardCol, chessRow);
+                    if (printReversed) {
+                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, 9 - boardCol, chessRow, printReversed);
+                    } else {
+                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
+                                9 - rowNum, boardCol, chessRow, printReversed);
+                    }
                 }
             }
         }
@@ -93,20 +121,21 @@ public class ChessBoard {
         out.println();
     }
 
+
     public static void printDarkSquare(boolean printValid, Collection<ChessMove> validMoves, ChessMove chessMove,
                                        PrintStream out, chess.ChessBoard chessBoard, int rowNum, int boardCol,
-                                       ArrayList<String> chessRow) {
+                                       ArrayList<String> chessRow, boolean printReversed) {
         ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
         if (printValid && validMoves.contains(chessMove)) {
             out.print(SET_BG_COLOR_DARK_GREEN);
             if (chessBoard.getPiece(chessPosition) != null) {
-                checkTeam(out, chessBoard, rowNum, boardCol);
+                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
             }
             out.print(chessRow.get(boardCol));
         } else {
             out.print(SET_BG_COLOR_DARK_GREY);
             if (chessBoard.getPiece(chessPosition) != null) {
-                checkTeam(out, chessBoard, rowNum, boardCol);
+                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
             }
             out.print(chessRow.get(boardCol));
         }
@@ -114,18 +143,23 @@ public class ChessBoard {
 
     public static void printLightSquare(boolean printValid, Collection<ChessMove> validMoves, ChessMove chessMove,
                                         PrintStream out, chess.ChessBoard chessBoard, int rowNum, int boardCol,
-                                        ArrayList<String> chessRow) {
+                                        ArrayList<String> chessRow, boolean printReversed) {
         ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
-        if (printValid && validMoves.contains(chessMove)) {
+        ChessPosition newChessPosition = null;
+        if (chessMove != null) {
+            newChessPosition = new ChessPosition(9 - chessMove.getEndPosition().getRow(),
+                    9 - chessMove.getEndPosition().getColumn());
+        }
+        if (printValid && validMoves.contains(chessMove) && newChessPosition != null) {
             out.print(SET_BG_COLOR_GREEN);
             if (chessBoard.getPiece(chessPosition) != null) {
-                checkTeam(out, chessBoard, rowNum, boardCol);
+                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
             }
             out.print(chessRow.get(boardCol));
         } else {
             out.print(SET_BG_COLOR_LIGHT_GREY);
             if (chessBoard.getPiece(chessPosition) != null) {
-                checkTeam(out, chessBoard, rowNum, boardCol);
+                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
             }
             out.print(chessRow.get(boardCol));
         }
@@ -137,13 +171,22 @@ public class ChessBoard {
         out.print(chessRow.get(boardCol));
     }
 
-    public static void checkTeam(PrintStream out, chess.ChessBoard chessBoard, int row, int col) {
+    public static void checkTeam(PrintStream out, chess.ChessBoard chessBoard, int row, int col,
+                                 boolean printBlackPersepctive) {
         ChessPosition chessPosition = new ChessPosition(row, col);
         if (chessBoard.getPiece(chessPosition).getTeamColor().equals(ChessGame.TeamColor.BLACK)) {
-            out.print(SET_TEXT_COLOR_BLUE);
+            if (printBlackPersepctive) {
+                out.print(SET_TEXT_COLOR_YELLOW);
+            } else {
+                out.print(SET_TEXT_COLOR_BLUE);
+            }
 
         } else if (chessBoard.getPiece(chessPosition).getTeamColor().equals(ChessGame.TeamColor.WHITE)) {
-            out.print(SET_TEXT_COLOR_YELLOW);
+            if (printBlackPersepctive) {
+                out.print(SET_TEXT_COLOR_BLUE);
+            } else {
+                out.print(SET_TEXT_COLOR_YELLOW);
+            }
         }
     }
 
@@ -198,7 +241,7 @@ public class ChessBoard {
     }
 
 
-    public ArrayList<ArrayList<String>> convertBoardToArray(chess.ChessBoard chessBoard) {
+    public static ArrayList<ArrayList<String>> convertBoardToArray(chess.ChessBoard chessBoard) {
         ArrayList<ArrayList<String>> chessBoardArray = new ArrayList<>();
         for (int row = 0; row <= 9; row++) {
             chessBoardArray.add(row, convertRowToArray(chessBoard, row));
@@ -206,12 +249,12 @@ public class ChessBoard {
         return chessBoardArray;
     }
 
-    public String convertRowToString(int rowNum) {
+    public static String convertRowToString(int rowNum) {
         return " " + rowNum + " ";
     }
 
-    public void convertPieceToString(chess.ChessBoard chessBoard, ChessPosition chessPosition,
-                                     ArrayList<String> chessRowArray, int col) {
+    public static void convertPieceToString(chess.ChessBoard chessBoard, ChessPosition chessPosition,
+                                            ArrayList<String> chessRowArray, int col) {
         if (chessBoard.getPiece(chessPosition).getPieceType().equals(ChessPiece.PieceType.KING) &&
                 chessBoard.getPiece(chessPosition).getTeamColor().equals(ChessGame.TeamColor.WHITE)) {
             chessRowArray.add(col, WHITE_KING);
@@ -254,8 +297,8 @@ public class ChessBoard {
     }
 
 
-    public void checkAndSetString(ChessPosition chessPosition, ArrayList<String> chessRowArray,
-                                  chess.ChessBoard chessBoard, int col) {
+    public static void checkAndSetString(ChessPosition chessPosition, ArrayList<String> chessRowArray,
+                                         chess.ChessBoard chessBoard, int col) {
         if (chessBoard.getPiece(chessPosition) != null) {
             convertPieceToString(chessBoard, chessPosition, chessRowArray, col);
         } else {
@@ -264,7 +307,7 @@ public class ChessBoard {
     }
 
 
-    public ArrayList<String> convertRowToArray(chess.ChessBoard chessBoard, int row) {
+    public static ArrayList<String> convertRowToArray(chess.ChessBoard chessBoard, int row) {
         ArrayList<String> chessRowArray = new ArrayList<>(10);
         if (row == 0 | row == 9) {
             chessRowArray = new ArrayList<>(Arrays.asList
