@@ -11,6 +11,7 @@ import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
+import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
@@ -25,7 +26,7 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
     }
 
     public void run() {
-        System.out.println(ROOK_CHARACTER + "Your chess homepage. Select a command to start." + ROOK_CHARACTER);
+        System.out.println(ROOK_CHARACTER + "Your chess homepage. Select a command to start.\n" + ROOK_CHARACTER);
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -65,10 +66,14 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
         String chessGameString = loadGameMessage.getGame();
         ChessGame chessGameReceived = new Gson().fromJson(chessGameString, ChessGame.class);
         chess.ChessBoard chessBoardReal = chessGameReceived.getBoard();
-        ChessBoard chessBoard = new ChessBoard();
         GameplayClient.chessGame = chessGameReceived;
-        //add to print correct board for black too
-        chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGameReceived, null);
+        if (Objects.equals(GameplayClient.team, "BLACK")) {
+            ChessBoard.printChessBoard(System.out, chessBoardReal, false,
+                    chessGameReceived, null);
+        } else {
+            ChessBoard.printReversedChessBoard(System.out, chessBoardReal, false,
+                    chessGameReceived, null);
+        }
     }
 
     @Override

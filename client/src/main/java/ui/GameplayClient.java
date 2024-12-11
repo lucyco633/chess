@@ -149,13 +149,13 @@ public class GameplayClient {
             int row = parsePosition(params[0]);
             int col = parsePosition(params[1]);
             if (Objects.equals(team, "WHITE") && row != 0 && col != 0) {
-                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), true,
-                        chessGame, new ChessPosition(row, col));
-                return "Chess Board";
-            } else if (Objects.equals(team, "BLACK") && row != 0 && col != 0) {
                 ChessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), true,
                         chessGame, new ChessPosition(row, col));
-                return "Chess Board";
+                return "\n";
+            } else if (Objects.equals(team, "BLACK") && row != 0 && col != 0) {
+                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), true,
+                        chessGame, new ChessPosition(row, col));
+                return "\n";
             } else if (row == 0 | col == 0) {
                 return "Expected: highlight <ROW> <COLUMN>, invalid row or column";
             }
@@ -166,13 +166,13 @@ public class GameplayClient {
     public String redrawBoard(String... params) {
         if (params.length == 0) {
             if (Objects.equals(team, "WHITE")) {
-                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
-                        chessGame, null);
-                return "Chess Board";
-            } else if (Objects.equals(team, "BLACK")) {
                 ChessBoard.printReversedChessBoard(System.out, chessGame.getBoard(), false,
                         chessGame, null);
-                return "Chess Board";
+                return "\n";
+            } else if (Objects.equals(team, "BLACK")) {
+                ChessBoard.printChessBoard(System.out, chessGame.getBoard(), false,
+                        chessGame, null);
+                return "\n";
             }
         }
         return "Expected: redraw, too many parameters";

@@ -77,6 +77,12 @@ public class ServerFacade {
         return this.makeRequest("DELETE", path, request, EmptyResult.class, null);
     }
 
+    public void observeGame(String authToken, int gameId) throws IOException {
+        var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                authToken, gameId);
+        webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
+    }
+
     public void leaveGame(String authToken, int gameId) throws IOException {
         var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE,
                 authToken, gameId);

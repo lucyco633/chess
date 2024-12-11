@@ -60,7 +60,6 @@ public class PostLoginClient {
                 case "list" -> listGames(params);
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
-                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -165,14 +164,17 @@ public class PostLoginClient {
                     return "Invalid Game ID\n";
                 }
                 team = "WHITE";
+                server.observeGame(userAuthorization, gameListStrings.get(Integer.valueOf(params[0]) - 1));
                 sendToGameplay(gameListStrings.get(Integer.valueOf(params[0]) - 1));
-                return String.format("Observing game %s", params[0]);
+                return String.format("Observing game %s\n", params[0]);
             } else if (params.length < 3) {
                 return "Expected: <ID> [WHITE|BLACK] not enough parameters\n";
             }
             return "Expected: <ID> [WHITE|BLACK] too many parameters\n";
         } catch (NumberFormatException e) {
             return "Invalid Game ID\n";
+        } catch (IOException e) {
+            return "Error: " + e.getMessage() + "\n";
         }
     }
 
@@ -184,17 +186,8 @@ public class PostLoginClient {
                 - join <ID> [WHITE|BLACK] : a game
                 - observe <ID> : a game
                 - logout : when you are done
-                - quit : playing chess
                 - help : with chess commands
                 """;
-    }
-
-    public ChessBoard getChessBoard() {
-        return chessBoard;
-    }
-
-    public List<Integer> getGameListStrings() {
-        return gameListStrings;
     }
 
     public String getUserAuthorization() {

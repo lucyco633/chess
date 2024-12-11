@@ -25,7 +25,7 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
     }
 
     public void run() {
-        System.out.println(ROOK_CHARACTER + "Your chess game. Select a command to start." + ROOK_CHARACTER);
+        System.out.println(ROOK_CHARACTER + "Your chess game. Select a command to start.\n" + ROOK_CHARACTER);
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -65,13 +65,13 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
         String chessGameString = loadGameMessage.getGame();
         ChessGame chessGameRecieved = new Gson().fromJson(chessGameString, ChessGame.class);
         chess.ChessBoard chessBoardReal = chessGameRecieved.getBoard();
-        ChessBoard chessBoard = new ChessBoard();
         GameplayClient.chessGame = chessGameRecieved;
-        //add to print correct board for black too
         if (Objects.equals(GameplayClient.team, "BLACK")) {
-            chessBoard.printChessBoard(System.out, chessBoardReal, false, chessGameRecieved, null);
+            ChessBoard.printChessBoard(System.out, chessBoardReal, false,
+                    chessGameRecieved, null);
         } else {
-            chessBoard.printReversedChessBoard(System.out, chessBoardReal, false, chessGameRecieved, null);
+            ChessBoard.printReversedChessBoard(System.out, chessBoardReal, false,
+                    chessGameRecieved, null);
         }
     }
 
