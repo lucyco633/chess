@@ -84,17 +84,14 @@ public class WebSocketServer {
                 connections.add(rootClientUsername, session,
                         sqlGameDAO.getGame(userGameCommand.getGameID()).game(), gameId);
                 String message = "";
-                if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
+                if (Objects.equals(rootClientUsername,
                         sqlGameDAO.getGame(userGameCommand.getGameID()).blackUsername())) {
-                    message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
-                            " joined game as team black\n";
+                    message = rootClientUsername + " joined game as team black\n";
                 } else if (Objects.equals(sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username(),
                         sqlGameDAO.getGame(userGameCommand.getGameID()).whiteUsername())) {
-                    message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
-                            " joined game as team white\n";
+                    message = rootClientUsername + " joined game as team white\n";
                 } else {
-                    message = sqlAuthDAO.getAuth(userGameCommand.getAuthToken()).username() +
-                            " joined game as observer\n";
+                    message = rootClientUsername + " joined game as observer\n";
                 }
                 ServerMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME,
                         new Gson().toJson(sqlGameDAO.getGame(userGameCommand.getGameID()).game()));
@@ -122,22 +119,29 @@ public class WebSocketServer {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid user token\n");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (!sqlGameDAO.getGame(gameId).game().validMoves(chessMove.getStartPosition()).contains(chessMove)) {
-                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                        "Error: Invalid move\n");
-                session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (sqlGameDAO.getGame(gameId).resigned()) {
-                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
-                        "Error: Invalid move, game over\n");
-                session.getRemote().sendString(new Gson().toJson(errorMessage));
             }
             GameData gameData = sqlGameDAO.getGame(gameId);
             String whiteUsername = gameData.whiteUsername();
             String blackUsername = gameData.blackUsername();
             String clientUsername = sqlAuthDAO.getAuth(authToken).username();
             ChessGame chessGame = gameData.game();
-            if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) &&
-                    whiteUsername.equals(clientUsername) &&
+            if (!sqlGameDAO.getGame(gameId).game().validMoves(chessMove.getStartPosition()).contains(chessMove)) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move\n");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if ((Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                    ChessGame.TeamColor.WHITE) && Objects.equals(clientUsername, blackUsername)) |
+                    (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                            ChessGame.TeamColor.BLACK) && Objects.equals(clientUsername, whiteUsername))) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move, not your player\n");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            } else if (sqlGameDAO.getGame(gameId).resigned()) {
+                ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
+                        "Error: Invalid move, game over\n");
+                session.getRemote().sendString(new Gson().toJson(errorMessage));
+            }
+            if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) && whiteUsername.equals(clientUsername) &&
                     !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
                     !chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) |
                     (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&

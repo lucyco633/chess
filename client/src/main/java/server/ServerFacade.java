@@ -68,8 +68,10 @@ public class ServerFacade {
         var path = "/game";
         var userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
                 request.authToken(), request.gameID());
+        JoinGameResult joinGameResult = this.makeRequest("PUT", path, request,
+                JoinGameResult.class, request.authToken());
         webSocketCommunicator.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
-        return this.makeRequest("PUT", path, request, JoinGameResult.class, request.authToken());
+        return joinGameResult;
     }
 
     public EmptyResult clear(EmptyRequest request) throws ResponseException {
