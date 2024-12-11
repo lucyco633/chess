@@ -58,7 +58,6 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
 
     @Override
     public void errorNotify(ErrorMessage errorMessage) {
-        System.out.print(errorMessage.getErrorMessage());
     }
 
     @Override
@@ -78,7 +77,6 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
 
     @Override
     public void notify(NotificationMessage notificationMessage) {
-        System.out.print(notificationMessage.getMessage());
     }
 
     @Override
