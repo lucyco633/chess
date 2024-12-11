@@ -17,26 +17,13 @@ public class GameplayClient {
     public static ChessGame chessGame;
     public static String team;
     private final ServerFacade server;
-    private final NotificationMessageHandler notificationMessageHandler;
-    private final ErrorMessageHandler errorMessageHandler;
-    private final LoadGameMessageHandler loadGameMessageHandler;
-    private final ServerMessageHandler serverMessageHandler;
 
 
-    public GameplayClient(String url, String authToken, int gameID,
-                          NotificationMessageHandler notificationMessageHandler,
-                          ErrorMessageHandler errorMessageHandler,
-                          LoadGameMessageHandler loadGameMessageHandler,
-                          ServerMessageHandler serverMessageHandler)
+    public GameplayClient(String url, String authToken, int gameID)
             throws ResponseException {
         this.authToken = authToken;
         this.gameID = gameID;
-        this.notificationMessageHandler = notificationMessageHandler;
-        this.errorMessageHandler = errorMessageHandler;
-        this.loadGameMessageHandler = loadGameMessageHandler;
-        this.serverMessageHandler = serverMessageHandler;
-        server = new ServerFacade(url, notificationMessageHandler, errorMessageHandler,
-                loadGameMessageHandler, serverMessageHandler);
+        server = new ServerFacade(url);
     }
 
     public String eval(String input) {
@@ -112,7 +99,6 @@ public class GameplayClient {
                 }
                 ChessPosition start = new ChessPosition(startRow, startColumn);
                 ChessPosition end = new ChessPosition(endRow, endColumn);
-                //how to handle promotion piece?
                 ChessPiece.PieceType promotionPiece = null;
                 if (endRow == 8 && Objects.equals(team, "WHITE") &&
                         chessGame.getBoard().getPiece(start).getPieceType().equals(ChessPiece.PieceType.PAWN)) {

@@ -2,6 +2,8 @@ package server;
 
 import websocket.messages.ErrorMessage;
 
-public interface ErrorMessageHandler {
-    void errorNotify(ErrorMessage errorMessage);
+public class ErrorMessageHandler {
+    void errorNotify(ErrorMessage errorMessage) {
+        System.out.print(errorMessage.getErrorMessage());
+    }
 }

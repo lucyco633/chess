@@ -14,21 +14,10 @@ public class PreLoginClient {
     private final ServerFacade server;
     private final String serverUrl;
     private String userAuthorization;
-    private final NotificationMessageHandler notificationMessageHandler;
-    private final ErrorMessageHandler errorMessageHandler;
-    private final LoadGameMessageHandler loadGameMessageHandler;
-    private final ServerMessageHandler serverMessageHandler;
 
-    public PreLoginClient(String serverUrl, NotificationMessageHandler notificationMessageHandler,
-                          ErrorMessageHandler errorMessageHandler, LoadGameMessageHandler loadGameMessageHandler,
-                          ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public PreLoginClient(String serverUrl) throws ResponseException {
         this.serverUrl = serverUrl;
-        this.notificationMessageHandler = notificationMessageHandler;
-        this.errorMessageHandler = errorMessageHandler;
-        this.loadGameMessageHandler = loadGameMessageHandler;
-        this.serverMessageHandler = serverMessageHandler;
-        server = new ServerFacade(serverUrl, notificationMessageHandler, errorMessageHandler,
-                loadGameMessageHandler, serverMessageHandler);
+        server = new ServerFacade(serverUrl);
     }
 
     public String eval(String input) {

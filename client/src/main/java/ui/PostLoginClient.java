@@ -22,31 +22,18 @@ public class PostLoginClient {
     private final ChessBoard chessBoard;
     private final String url;
     private String team;
-    private final NotificationMessageHandler notificationMessageHandler;
-    private final ErrorMessageHandler errorMessageHandler;
-    private final LoadGameMessageHandler loadGameMessageHandler;
-    private final ServerMessageHandler serverMessageHandler;
 
 
     public String getUrl() {
         return url;
     }
 
-    public PostLoginClient(String serverUrl, String userAuthorization,
-                           NotificationMessageHandler notificationMessageHandler,
-                           ErrorMessageHandler errorMessageHandler,
-                           LoadGameMessageHandler loadGameMessageHandler,
-                           ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public PostLoginClient(String serverUrl, String userAuthorization) throws ResponseException {
         this.userAuthorization = userAuthorization;
         this.url = serverUrl;
-        this.notificationMessageHandler = notificationMessageHandler;
-        this.errorMessageHandler = errorMessageHandler;
-        this.loadGameMessageHandler = loadGameMessageHandler;
-        this.serverMessageHandler = serverMessageHandler;
         this.chessBoard = new ChessBoard();
         this.gameListStrings = new ArrayList<>();
-        server = new ServerFacade(serverUrl, notificationMessageHandler, errorMessageHandler,
-                loadGameMessageHandler, serverMessageHandler);
+        server = new ServerFacade(serverUrl);
     }
 
     public String eval(String input) {

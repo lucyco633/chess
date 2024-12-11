@@ -13,22 +13,11 @@ import java.net.URISyntaxException;
 
 public class WebSocketCommunicator extends Endpoint {
     Session session;
-    ServerMessageHandler serverMessageHandler;
-    ErrorMessageHandler errorMessageHandler;
-    NotificationMessageHandler notificationMessageHandler;
-    LoadGameMessageHandler loadGameMessageHandler;
 
-    public WebSocketCommunicator(String url, ServerMessageHandler serverMessageHandler,
-                                 ErrorMessageHandler errorMessageHandler,
-                                 NotificationMessageHandler notificationMessageHandler,
-                                 LoadGameMessageHandler loadGameMessageHandler) throws ResponseException {
+    public WebSocketCommunicator(String url) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
-            this.serverMessageHandler = serverMessageHandler;
-            this.errorMessageHandler = errorMessageHandler;
-            this.notificationMessageHandler = notificationMessageHandler;
-            this.loadGameMessageHandler = loadGameMessageHandler;
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
@@ -39,15 +28,18 @@ public class WebSocketCommunicator extends Endpoint {
                     ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                     switch (serverMessage.getServerMessageType()) {
                         case ERROR:
+                            ErrorMessageHandler errorMessageHandler = new ErrorMessageHandler();
                             ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
                             errorMessageHandler.errorNotify(errorMessage);
                             break;
                         case NOTIFICATION:
+                            NotificationMessageHandler notificationMessageHandler = new NotificationMessageHandler();
                             NotificationMessage notificationMessage = new Gson().fromJson(message,
                                     NotificationMessage.class);
                             notificationMessageHandler.notify(notificationMessage);
                             break;
                         case LOAD_GAME:
+                            LoadGameMessageHandler loadGameMessageHandler = new LoadGameMessageHandler();
                             LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
                             loadGameMessageHandler.loadGame(loadGameMessage);
                             break;

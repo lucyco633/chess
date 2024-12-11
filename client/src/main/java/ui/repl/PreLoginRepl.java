@@ -11,13 +11,11 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
-public class PreLoginRepl implements NotificationMessageHandler, ErrorMessageHandler,
-        LoadGameMessageHandler, ServerMessageHandler {
+public class PreLoginRepl {
     private final PreLoginClient client;
 
     public PreLoginRepl(String serverUrl) throws ResponseException {
-        client = new PreLoginClient(serverUrl, this, this,
-                this, this);
+        client = new PreLoginClient(serverUrl);
     }
 
     public void run() {
@@ -48,19 +46,4 @@ public class PreLoginRepl implements NotificationMessageHandler, ErrorMessageHan
         System.out.print("\nWhat do you want to do? >>> \n");
     }
 
-    @Override
-    public void errorNotify(ErrorMessage errorMessage) {
-    }
-
-    @Override
-    public void loadGame(LoadGameMessage loadGameMessage) {
-    }
-
-    @Override
-    public void notify(NotificationMessage notificationMessage) {
-    }
-
-    @Override
-    public void notify(ServerMessage serverMessage) {
-    }
 }

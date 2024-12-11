@@ -15,13 +15,11 @@ import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
 
-public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler, NotificationMessageHandler,
-        ServerMessageHandler {
+public class GameplayRepl {
     private final GameplayClient client;
 
     public GameplayRepl(String url, String authToken, int gameId, String team) throws ResponseException {
-        client = new GameplayClient(url, authToken, gameId, this,
-                this, this, this);
+        client = new GameplayClient(url, authToken, gameId);
     }
 
     public void run() {
@@ -55,32 +53,4 @@ public class GameplayRepl implements ErrorMessageHandler, LoadGameMessageHandler
         System.out.print("\nWhat do you want to do? >>> \n");
     }
 
-    @Override
-    public void errorNotify(ErrorMessage errorMessage) {
-        System.out.print(errorMessage.getErrorMessage());
-    }
-
-    @Override
-    public void loadGame(LoadGameMessage loadGameMessage) {
-        String chessGameString = loadGameMessage.getGame();
-        ChessGame chessGameRecieved = new Gson().fromJson(chessGameString, ChessGame.class);
-        chess.ChessBoard chessBoardReal = chessGameRecieved.getBoard();
-        GameplayClient.chessGame = chessGameRecieved;
-        if (Objects.equals(GameplayClient.team, "BLACK")) {
-            ChessBoard.printChessBoard(System.out, chessBoardReal, false,
-                    chessGameRecieved, null);
-        } else {
-            ChessBoard.printReversedChessBoard(System.out, chessBoardReal, false,
-                    chessGameRecieved, null);
-        }
-    }
-
-    @Override
-    public void notify(NotificationMessage notificationMessage) {
-        System.out.print(notificationMessage.getMessage());
-    }
-
-    @Override
-    public void notify(ServerMessage serverMessage) {
-    }
 }

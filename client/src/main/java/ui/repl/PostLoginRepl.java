@@ -1,28 +1,17 @@
 package ui.repl;
 
-import chess.ChessGame;
-import com.google.gson.Gson;
 import server.*;
-import ui.ChessBoard;
-import ui.GameplayClient;
 import ui.PostLoginClient;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
-import java.util.Objects;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.ROOK_CHARACTER;
 
-public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessageHandler, ErrorMessageHandler,
-        ServerMessageHandler {
+public class PostLoginRepl {
     private final PostLoginClient client;
 
     public PostLoginRepl(String serverUrl, String userAuthorization) throws ResponseException {
-        client = new PostLoginClient(serverUrl, userAuthorization, this,
-                this, this, this);
+        client = new PostLoginClient(serverUrl, userAuthorization);
     }
 
     public void run() {
@@ -56,30 +45,4 @@ public class PostLoginRepl implements LoadGameMessageHandler, NotificationMessag
         System.out.print("\nWhat do you want to do? >>> \n");
     }
 
-    @Override
-    public void errorNotify(ErrorMessage errorMessage) {
-    }
-
-    @Override
-    public void loadGame(LoadGameMessage loadGameMessage) {
-        String chessGameString = loadGameMessage.getGame();
-        ChessGame chessGameReceived = new Gson().fromJson(chessGameString, ChessGame.class);
-        chess.ChessBoard chessBoardReal = chessGameReceived.getBoard();
-        GameplayClient.chessGame = chessGameReceived;
-        if (Objects.equals(GameplayClient.team, "BLACK")) {
-            ChessBoard.printChessBoard(System.out, chessBoardReal, false,
-                    chessGameReceived, null);
-        } else {
-            ChessBoard.printReversedChessBoard(System.out, chessBoardReal, false,
-                    chessGameReceived, null);
-        }
-    }
-
-    @Override
-    public void notify(NotificationMessage notificationMessage) {
-    }
-
-    @Override
-    public void notify(ServerMessage serverMessage) {
-    }
 }

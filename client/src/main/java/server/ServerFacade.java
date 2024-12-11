@@ -21,22 +21,10 @@ public class ServerFacade {
 
     private final String serverUrl;
     private WebSocketCommunicator webSocketCommunicator;
-    private final NotificationMessageHandler notificationMessageHandler;
-    private final ErrorMessageHandler errorMessageHandler;
-    private final LoadGameMessageHandler loadGameMessageHandler;
-    private final ServerMessageHandler serverMessageHandler;
 
-    public ServerFacade(String url, NotificationMessageHandler notificationMessageHandler,
-                        ErrorMessageHandler errorMessageHandler,
-                        LoadGameMessageHandler loadGameMessageHandler,
-                        ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public ServerFacade(String url) throws ResponseException {
         serverUrl = url;
-        this.notificationMessageHandler = notificationMessageHandler;
-        this.errorMessageHandler = errorMessageHandler;
-        this.loadGameMessageHandler = loadGameMessageHandler;
-        this.serverMessageHandler = serverMessageHandler;
-        webSocketCommunicator = new WebSocketCommunicator(url, serverMessageHandler, errorMessageHandler,
-                notificationMessageHandler, loadGameMessageHandler);
+        webSocketCommunicator = new WebSocketCommunicator(url);
     }
 
     public RegisterResult register(RegisterRequest request) throws ResponseException {
