@@ -100,6 +100,15 @@ public class ChessBoard {
         }
     }
 
+    public static void printSquareColor(int row, int col, PrintStream out, chess.ChessBoard chessBoard,
+                                        ChessPosition chessPosition) {
+        if (row % 2 == 0 && row != 0 && row != 9) {
+            printEvenRowSpots(row, col, out, chessBoard, chessPosition);
+        } else if (row % 2 != 0 && row != 0 && row != 9) {
+            printOddRowSpots(row, col, out, chessBoard, chessPosition);
+        }
+    }
+
     public static void printSquare(PrintStream out, int row, int col, chess.ChessBoard chessBoard,
                                    Collection<ChessMove> validMoves, boolean highlight, ChessPosition startPosition) {
         ChessPosition chessPosition = new ChessPosition(row, col);
@@ -108,45 +117,40 @@ public class ChessBoard {
             if (validMoves.contains(move)) {
                 printValidSpot(row, col, out, chessBoard, chessPosition);
             } else {
-                if (row % 2 == 0 && row != 0 && row != 9) {
-                    printEvenRowSpots(row, col, out, chessBoard, chessPosition);
-                } else if (row % 2 != 0 && row != 0 && row != 9) {
-                    printOddRowSpots(row, col, out, chessBoard, chessPosition);
-                }
+                printSquareColor(row, col, out, chessBoard, chessPosition);
             }
         } else {
-            if (row % 2 == 0 && row != 0 && row != 9) {
-                printEvenRowSpots(row, col, out, chessBoard, chessPosition);
-            } else if (row % 2 != 0 && row != 0 && row != 9) {
-                printOddRowSpots(row, col, out, chessBoard, chessPosition);
-            }
+            printSquareColor(row, col, out, chessBoard, chessPosition);
         }
         out.print(convertPieceToString(chessBoard, chessPosition));
     }
 
     public static void printRow(PrintStream out, int row, chess.ChessBoard chessBoard,
-                                Collection<ChessMove> validMoves, boolean highlight, ChessPosition chessPosition) {
-        for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
-            if (col == 0 || col == 9) {
-                drawBorder(out, " " + row + " ");
-            } else if ((row == 0 || row == 9) && (col != 0 && col != 9)) {
-                drawBorder(out, columnToLabel(col));
+                                Collection<ChessMove> validMoves, boolean highlight, ChessPosition chessPosition,
+                                int col) {
+        if (col == 0 || col == 9) {
+            if (row == 0 | row == 9) {
+                drawBorder(out, EMPTY);
             } else {
-                printSquare(out, row, col, chessBoard, validMoves, highlight, chessPosition);
+                drawBorder(out, " " + row + " ");
             }
+        } else if ((row == 0 || row == 9) && (col != 0 && col != 9)) {
+            drawBorder(out, columnToLabel(col));
+        } else {
+            printSquare(out, row, col, chessBoard, validMoves, highlight, chessPosition);
         }
     }
 
-    public static void printRowBlackPerspective(PrintStream out, int row, chess.ChessBoard chessBoard,
-                                                Collection<ChessMove> validMoves, boolean highlight,
-                                                ChessPosition chessPosition) {
-        for (int col = BOARD_SIZE_IN_SQUARES - 1; col >= 0; col--) {
-            if (col == 0 || col == 9) {
-                drawBorder(out, " " + row + " ");
-            } else if ((row == 0 || row == 9) && (col != 0 && col != 9)) {
-                drawBorder(out, columnToLabel(col));
-            } else {
-                printSquare(out, row, col, chessBoard, validMoves, highlight, chessPosition);
+    public static void printRowWithPerspective(PrintStream out, int row, chess.ChessBoard chessBoard,
+                                               Collection<ChessMove> validMoves, boolean highlight, ChessPosition chessPosition,
+                                               boolean blackPerspective) {
+        if (blackPerspective) {
+            for (int col = BOARD_SIZE_IN_SQUARES - 1; col >= 0; col--) {
+                printRow(out, row, chessBoard, validMoves, highlight, chessPosition, col);
+            }
+        } else {
+            for (int col = 0; col < BOARD_SIZE_IN_SQUARES; col++) {
+                printRow(out, row, chessBoard, validMoves, highlight, chessPosition, col);
             }
         }
     }
@@ -154,7 +158,7 @@ public class ChessBoard {
     public static void printBoard(PrintStream out, chess.ChessBoard chessBoard,
                                   Collection<ChessMove> validMoves, boolean highlight, ChessPosition chessPosition) {
         for (int row = 0; row < BOARD_SIZE_IN_SQUARES; row++) {
-            printRowBlackPerspective(out, row, chessBoard, validMoves, highlight, chessPosition);
+            printRowWithPerspective(out, row, chessBoard, validMoves, highlight, chessPosition, true);
             out.print("\n");
         }
     }
@@ -163,7 +167,7 @@ public class ChessBoard {
                                                   Collection<ChessMove> validMoves, boolean highlight,
                                                   ChessPosition chessPosition) {
         for (int row = BOARD_SIZE_IN_SQUARES - 1; row >= 0; row--) {
-            printRow(out, row, chessBoard, validMoves, highlight, chessPosition);
+            printRowWithPerspective(out, row, chessBoard, validMoves, highlight, chessPosition, false);
             out.print("\n");
         }
     }
