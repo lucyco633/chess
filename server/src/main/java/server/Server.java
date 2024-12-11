@@ -1,9 +1,50 @@
 package server;
 
+import dataaccess.DataAccessException;
+import dataaccess.SqlAuthDAO;
+import dataaccess.SqlGameDAO;
+import dataaccess.SqlUserDAO;
 import server.websocket.WebSocketServer;
+import service.ResultExceptions;
 import spark.*;
 
 public class Server {
+    public static SqlUserDAO sqlUserDAO;
+
+    static {
+        try {
+            sqlUserDAO = new SqlUserDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SqlGameDAO sqlGameDAO;
+
+    static {
+        try {
+            sqlGameDAO = new SqlGameDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SqlAuthDAO sqlAuthDAO;
+
+    static {
+        try {
+            sqlAuthDAO = new SqlAuthDAO();
+        } catch (ResultExceptions e) {
+            throw new RuntimeException(e);
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

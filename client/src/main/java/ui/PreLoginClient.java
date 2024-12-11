@@ -19,7 +19,9 @@ public class PreLoginClient {
     private final LoadGameMessageHandler loadGameMessageHandler;
     private final ServerMessageHandler serverMessageHandler;
 
-    public PreLoginClient(String serverUrl, NotificationMessageHandler notificationMessageHandler, ErrorMessageHandler errorMessageHandler, LoadGameMessageHandler loadGameMessageHandler, ServerMessageHandler serverMessageHandler) throws ResponseException {
+    public PreLoginClient(String serverUrl, NotificationMessageHandler notificationMessageHandler,
+                          ErrorMessageHandler errorMessageHandler, LoadGameMessageHandler loadGameMessageHandler,
+                          ServerMessageHandler serverMessageHandler) throws ResponseException {
         this.serverUrl = serverUrl;
         this.notificationMessageHandler = notificationMessageHandler;
         this.errorMessageHandler = errorMessageHandler;

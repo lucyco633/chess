@@ -10,6 +10,10 @@ import service.results.RegisterResult;
 
 import java.sql.SQLException;
 
+import static server.Server.sqlAuthDAO;
+import static server.Server.sqlUserDAO;
+import static server.Server.sqlGameDAO;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -77,7 +81,7 @@ public class UserServiceTest {
         var loggedIn = USER_SERVICE.login(loginRequest);
         var logoutRequest = new LogoutRequest(loggedIn.authToken());
         var loggedOut = USER_SERVICE.logout(logoutRequest);
-        var foundAuth = USER_SERVICE.sqlAuthDAO.getAuth(loggedIn.authToken());
+        var foundAuth = sqlAuthDAO.getAuth(loggedIn.authToken());
         assertNull(foundAuth);
     }
 
@@ -107,8 +111,8 @@ public class UserServiceTest {
         var listGamesRequest = new ListGamesRequest(loggedIn.authToken());
         var actual = USER_SERVICE.listGames(listGamesRequest);
         assertEquals(2, actual.games().size());
-        assertTrue(actual.games().contains(USER_SERVICE.sqlGameDAO.getGame(createGame1.gameID())));
-        assertTrue(actual.games().contains(USER_SERVICE.sqlGameDAO.getGame(createGame2.gameID())));
+        assertTrue(actual.games().contains(sqlGameDAO.getGame(createGame1.gameID())));
+        assertTrue(actual.games().contains(sqlGameDAO.getGame(createGame2.gameID())));
     }
 
     @Test
@@ -195,6 +199,6 @@ public class UserServiceTest {
         var actual = USER_SERVICE.joinGame(joinGameRequest);
         var clearRequest = new EmptyRequest();
         USER_SERVICE.clear(clearRequest);
-        assertNull(USER_SERVICE.sqlAuthDAO.getAuth(loggedIn.authToken()));
+        assertNull(sqlAuthDAO.getAuth(loggedIn.authToken()));
     }
 }

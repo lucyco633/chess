@@ -6,16 +6,13 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static ui.EscapeSequences.*;
 
 public class ChessBoard {
 
-    // Board dimensions
     private static final int BOARD_SIZE_IN_SQUARES = 10;
-    private static final int SQUARE_SIZE_IN_PADDED_CHARS = 1;
 
 
     public static void printReversedChessBoard(PrintStream out, chess.ChessBoard chessBoard, boolean printValid,
@@ -44,89 +41,84 @@ public class ChessBoard {
         return validMoves;
     }
 
+    public static void printValidSpot(int row, int col, PrintStream out, chess.ChessBoard chessBoard,
+                                      ChessPosition chessPosition) {
+        if (row % 2 == 0 && row != 0 && row != 9) {
+            if (col % 2 == 0 && col != 0 && col != 9) {
+                out.print(SET_BG_COLOR_DARK_GREEN);
+                if (chessBoard.getPiece(chessPosition) != null) {
+                    checkTeam(out, chessBoard, row, col);
+                }
+            } else if (col % 2 != 0 && col != 0 && col != 9) {
+                out.print(SET_BG_COLOR_GREEN);
+                if (chessBoard.getPiece(chessPosition) != null) {
+                    checkTeam(out, chessBoard, row, col);
+                }
+            }
+        } else if (row % 2 != 0 && row != 0 && row != 9) {
+            if (col % 2 == 0 && col != 0 && col != 9) {
+                out.print(SET_BG_COLOR_GREEN);
+                if (chessBoard.getPiece(chessPosition) != null) {
+                    checkTeam(out, chessBoard, row, col);
+                }
+            } else if (col % 2 != 0 && col != 0 && col != 9) {
+                out.print(SET_BG_COLOR_DARK_GREEN);
+                if (chessBoard.getPiece(chessPosition) != null) {
+                    checkTeam(out, chessBoard, row, col);
+                }
+            }
+        }
+    }
+
+    public static void printEvenRowSpots(int row, int col, PrintStream out, chess.ChessBoard chessBoard,
+                                         ChessPosition chessPosition) {
+        if (col % 2 == 0 && col != 0 && col != 9) {
+            out.print(SET_BG_COLOR_DARK_GREY);
+            if (chessBoard.getPiece(chessPosition) != null) {
+                checkTeam(out, chessBoard, row, col);
+            }
+        } else if (col % 2 != 0 && col != 0 && col != 9) {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            if (chessBoard.getPiece(chessPosition) != null) {
+                checkTeam(out, chessBoard, row, col);
+            }
+        }
+    }
+
+    public static void printOddRowSpots(int row, int col, PrintStream out, chess.ChessBoard chessBoard,
+                                        ChessPosition chessPosition) {
+        if (col % 2 == 0 && col != 0 && col != 9) {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            if (chessBoard.getPiece(chessPosition) != null) {
+                checkTeam(out, chessBoard, row, col);
+            }
+        } else if (col % 2 != 0 && col != 0 && col != 9) {
+            out.print(SET_BG_COLOR_DARK_GREY);
+            if (chessBoard.getPiece(chessPosition) != null) {
+                checkTeam(out, chessBoard, row, col);
+            }
+        }
+    }
+
     public static void printSquare(PrintStream out, int row, int col, chess.ChessBoard chessBoard,
                                    Collection<ChessMove> validMoves, boolean highlight, ChessPosition startPosition) {
         ChessPosition chessPosition = new ChessPosition(row, col);
         if (highlight) {
             ChessMove move = new ChessMove(startPosition, chessPosition, null);
             if (validMoves.contains(move)) {
-                if (row % 2 == 0 && row != 0 && row != 9) {
-                    if (col % 2 == 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_DARK_GREEN);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    } else if (col % 2 != 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_GREEN);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    }
-                } else if (row % 2 != 0 && row != 0 && row != 9) {
-                    if (col % 2 == 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_GREEN);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    } else if (col % 2 != 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_DARK_GREEN);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    }
-                }
+                printValidSpot(row, col, out, chessBoard, chessPosition);
             } else {
                 if (row % 2 == 0 && row != 0 && row != 9) {
-                    if (col % 2 == 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_DARK_GREY);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    } else if (col % 2 != 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_LIGHT_GREY);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    }
+                    printEvenRowSpots(row, col, out, chessBoard, chessPosition);
                 } else if (row % 2 != 0 && row != 0 && row != 9) {
-                    if (col % 2 == 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_LIGHT_GREY);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    } else if (col % 2 != 0 && col != 0 && col != 9) {
-                        out.print(SET_BG_COLOR_DARK_GREY);
-                        if (chessBoard.getPiece(chessPosition) != null) {
-                            checkTeam(out, chessBoard, row, col);
-                        }
-                    }
+                    printOddRowSpots(row, col, out, chessBoard, chessPosition);
                 }
             }
         } else {
             if (row % 2 == 0 && row != 0 && row != 9) {
-                if (col % 2 == 0 && col != 0 && col != 9) {
-                    out.print(SET_BG_COLOR_DARK_GREY);
-                    if (chessBoard.getPiece(chessPosition) != null) {
-                        checkTeam(out, chessBoard, row, col);
-                    }
-                } else if (col % 2 != 0 && col != 0 && col != 9) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    if (chessBoard.getPiece(chessPosition) != null) {
-                        checkTeam(out, chessBoard, row, col);
-                    }
-                }
+                printEvenRowSpots(row, col, out, chessBoard, chessPosition);
             } else if (row % 2 != 0 && row != 0 && row != 9) {
-                if (col % 2 == 0 && col != 0 && col != 9) {
-                    out.print(SET_BG_COLOR_LIGHT_GREY);
-                    if (chessBoard.getPiece(chessPosition) != null) {
-                        checkTeam(out, chessBoard, row, col);
-                    }
-                } else if (col % 2 != 0 && col != 0 && col != 9) {
-                    out.print(SET_BG_COLOR_DARK_GREY);
-                    if (chessBoard.getPiece(chessPosition) != null) {
-                        checkTeam(out, chessBoard, row, col);
-                    }
-                }
+                printOddRowSpots(row, col, out, chessBoard, chessPosition);
             }
         }
         out.print(convertPieceToString(chessBoard, chessPosition));
@@ -175,119 +167,6 @@ public class ChessBoard {
             out.print("\n");
         }
     }
-//
-//    private static void printRowOfSquares(PrintStream out, ArrayList<String> chessRow, int rowNum,
-//                                          chess.ChessBoard chessBoard, boolean printValid, ChessGame chessGame,
-//                                          ChessPosition startPosition, boolean printReversed) {
-//        for (int boardCol = 0; boardCol < BOARD_SIZE_IN_SQUARES; ++boardCol) {
-//            ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
-//            ChessMove chessMove = null;
-//            Collection<ChessMove> validMoves = null;
-//            if (startPosition != null) {
-//                chessMove = new ChessMove(startPosition, chessPosition, null);
-//                validMoves = findValidMoves(chessGame, startPosition);
-//            }
-//            if (boardCol == 0 || boardCol == 9) {
-//                drawBorder(out, boardCol, chessRow);
-//            }
-//
-//            if ((rowNum == 0 || rowNum == 9) && (boardCol != 0 && boardCol != 9)) {
-//                if (printReversed) {
-//                    drawBorder(out, 9 - boardCol, chessRow);
-//                } else {
-//                    drawBorder(out, boardCol, chessRow);
-//                }
-//            }
-//
-//            if (rowNum % 2 != 0 && rowNum != 9) {
-//                if (boardCol % 2 != 0 && boardCol != 9) {
-//                    if (printReversed) {
-//                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                rowNum, 9 - boardCol, chessRow, printReversed);
-//                    } else {
-//                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                9 - rowNum, boardCol, chessRow, printReversed);
-//                    }
-//                }
-//                if (boardCol % 2 == 0 && boardCol != 0) {
-//                    if (printReversed) {
-//                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                rowNum, 9 - boardCol, chessRow, printReversed);
-//                    } else {
-//                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                9 - rowNum, boardCol, chessRow, printReversed);
-//                    }
-//                }
-//            }
-//
-//            if (rowNum % 2 == 0 && rowNum != 0 && rowNum != 9) {
-//                if (boardCol % 2 == 0 && boardCol != 0) {
-//                    if (printReversed) {
-//                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                rowNum, 9 - boardCol, chessRow, printReversed);
-//                    } else {
-//                        printLightSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                9 - rowNum, boardCol, chessRow, printReversed);
-//                    }
-//                }
-//                if (boardCol % 2 != 0 && boardCol != 9) {
-//                    if (printReversed) {
-//                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                rowNum, 9 - boardCol, chessRow, printReversed);
-//                    } else {
-//                        printDarkSquare(printValid, validMoves, chessMove, out, chessBoard,
-//                                9 - rowNum, boardCol, chessRow, printReversed);
-//                    }
-//                }
-//            }
-//        }
-//
-//        out.println();
-//    }
-
-
-//    public static void printDarkSquare(boolean printValid, Collection<ChessMove> validMoves, ChessMove chessMove,
-//                                       PrintStream out, chess.ChessBoard chessBoard, int rowNum, int boardCol,
-//                                       ArrayList<String> chessRow, boolean printReversed) {
-//        ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
-//        if (printValid && validMoves.contains(chessMove)) {
-//            out.print(SET_BG_COLOR_DARK_GREEN);
-//            if (chessBoard.getPiece(chessPosition) != null) {
-//                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
-//            }
-//            out.print(chessRow.get(boardCol));
-//        } else {
-//            out.print(SET_BG_COLOR_DARK_GREY);
-//            if (chessBoard.getPiece(chessPosition) != null) {
-//                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
-//            }
-//            out.print(chessRow.get(boardCol));
-//        }
-//    }
-//
-//    public static void printLightSquare(boolean printValid, Collection<ChessMove> validMoves, ChessMove chessMove,
-//                                        PrintStream out, chess.ChessBoard chessBoard, int rowNum, int boardCol,
-//                                        ArrayList<String> chessRow, boolean printReversed) {
-//        ChessPosition chessPosition = new ChessPosition(rowNum, boardCol);
-//        ChessPosition newChessPosition = null;
-//        if (chessMove != null) {
-//            newChessPosition = new ChessPosition(9 - chessMove.getEndPosition().getRow(),
-//                    9 - chessMove.getEndPosition().getColumn());
-//        }
-//        if (printValid && validMoves.contains(chessMove) && newChessPosition != null) {
-//            out.print(SET_BG_COLOR_GREEN);
-//            if (chessBoard.getPiece(chessPosition) != null) {
-//                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
-//            }
-//            out.print(chessRow.get(boardCol));
-//        } else {
-//            out.print(SET_BG_COLOR_LIGHT_GREY);
-//            if (chessBoard.getPiece(chessPosition) != null) {
-//                checkTeam(out, chessBoard, rowNum, boardCol, printReversed);
-//            }
-//            out.print(chessRow.get(boardCol));
-//        }
-//    }
 
     private static void drawBorder(PrintStream out, String borderLabel) {
         out.print(SET_BG_COLOR_BLACK);
@@ -302,69 +181,6 @@ public class ChessBoard {
         } else if (chessBoard.getPiece(chessPosition).getTeamColor().equals(ChessGame.TeamColor.WHITE)) {
             out.print(SET_TEXT_COLOR_YELLOW);
         }
-    }
-
-    public ArrayList<ArrayList<String>> createChessBoardArray() {
-        ArrayList<ArrayList<String>> chessBoard = new ArrayList<>();
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (EMPTY, " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", EMPTY)));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 8 ", BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN,
-                                BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK, " 8 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 7 ", BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN,
-                                BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, " 7 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 6 ", EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, " 6 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 5 ", EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, " 5 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 4 ", EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, " 4 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 3 ", EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, " 3 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 2 ", WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN,
-                                WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, WHITE_PAWN, " 2 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (" 1 ", WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN,
-                                WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK, " 1 ")));
-
-        chessBoard.add(
-                new ArrayList<>(Arrays.asList
-                        (EMPTY, " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", EMPTY)));
-
-        return chessBoard;
-    }
-//
-//
-//    public static ArrayList<ArrayList<String>> convertBoardToArray(chess.ChessBoard chessBoard) {
-//        ArrayList<ArrayList<String>> chessBoardArray = new ArrayList<>();
-//        for (int row = 0; row <= 9; row++) {
-//            chessBoardArray.add(row, convertRowToArray(chessBoard, row));
-//        }
-//        return chessBoardArray;
-//    }
-
-    public static String convertRowToString(int rowNum) {
-        return " " + rowNum + " ";
     }
 
     public static String convertPieceToString(chess.ChessBoard chessBoard, ChessPosition chessPosition) {
@@ -431,33 +247,4 @@ public class ChessBoard {
         }
         return EMPTY;
     }
-
-//
-//    public static void checkAndSetString(ChessPosition chessPosition, ArrayList<String> chessRowArray,
-//                                         chess.ChessBoard chessBoard, int col) {
-//        if (chessBoard.getPiece(chessPosition) != null) {
-//            convertPieceToString(chessBoard, chessPosition, chessRowArray, col);
-//        } else {
-//            chessRowArray.add(col, EMPTY);
-//        }
-//    }
-
-//
-//    public static ArrayList<String> convertRowToArray(chess.ChessBoard chessBoard, int row) {
-//        ArrayList<String> chessRowArray = new ArrayList<>(10);
-//        if (row == 0 | row == 9) {
-//            chessRowArray = new ArrayList<>(Arrays.asList
-//                    (EMPTY, " a ", " b ", " c ", " d ", " e ", " f ", " g ", " h ", EMPTY));
-//        } else if (row > 0 && row <= 8) {
-//            for (int col = 0; col <= 9; col++) {
-//                if (col == 0 | col == 9) {
-//                    chessRowArray.add(col, convertRowToString(row));
-//                } else {
-//                    ChessPosition chessPosition = new ChessPosition(row, col);
-//                    checkAndSetString(chessPosition, chessRowArray, chessBoard, col);
-//                }
-//            }
-//        }
-//        return chessRowArray;
-//    }
 }

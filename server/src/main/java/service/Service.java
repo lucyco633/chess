@@ -10,43 +10,11 @@ import service.results.*;
 
 import java.sql.SQLException;
 
+import static server.Server.sqlAuthDAO;
+import static server.Server.sqlUserDAO;
+import static server.Server.sqlGameDAO;
+
 public class Service {
-
-    public static SqlUserDAO sqlUserDAO;
-
-    static {
-        try {
-            sqlUserDAO = new SqlUserDAO();
-        } catch (ResultExceptions e) {
-            throw new RuntimeException(e);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static SqlGameDAO sqlGameDAO;
-
-    static {
-        try {
-            sqlGameDAO = new SqlGameDAO();
-        } catch (ResultExceptions e) {
-            throw new RuntimeException(e);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static SqlAuthDAO sqlAuthDAO;
-
-    static {
-        try {
-            sqlAuthDAO = new SqlAuthDAO();
-        } catch (ResultExceptions e) {
-            throw new RuntimeException(e);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Service() throws ResultExceptions, DataAccessException {
     }

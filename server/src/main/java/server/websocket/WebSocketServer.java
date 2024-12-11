@@ -21,33 +21,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
 
+import static server.Server.sqlAuthDAO;
+import static server.Server.sqlGameDAO;
+
 @WebSocket
 public class WebSocketServer {
 
     private final ConnectionManager connections = new ConnectionManager();
-    public static SqlGameDAO sqlGameDAO;
 
-    static {
-        try {
-            sqlGameDAO = new SqlGameDAO();
-        } catch (ResultExceptions e) {
-            throw new RuntimeException(e);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static SqlAuthDAO sqlAuthDAO;
-
-    static {
-        try {
-            sqlAuthDAO = new SqlAuthDAO();
-        } catch (ResultExceptions e) {
-            throw new RuntimeException(e);
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws SQLException, IOException, ResultExceptions,
@@ -106,6 +87,34 @@ public class WebSocketServer {
         }
     }
 
+    public boolean checkPlayer(ChessGame chessGame, ChessMove chessMove, String clientUsername, String blackUsername,
+                               String whiteUsername) {
+        return (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                ChessGame.TeamColor.WHITE) && Objects.equals(clientUsername, blackUsername)) |
+                (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                        ChessGame.TeamColor.BLACK) && Objects.equals(clientUsername, whiteUsername));
+    }
+
+    public boolean checkMove(ChessGame chessGame, ChessMove chessMove, String clientUsername, String blackUsername,
+                             String whiteUsername) {
+        return (!chessGame.validMoves(chessMove.getStartPosition()).contains(chessMove)
+                && !((Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                ChessGame.TeamColor.WHITE) && Objects.equals(clientUsername, blackUsername)) |
+                (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
+                        ChessGame.TeamColor.BLACK) && Objects.equals(clientUsername, whiteUsername))));
+    }
+
+    public boolean checkTurn(ChessGame chessGame, GameData gameData, String clientUsername, String blackUsername,
+                             String whiteUsername) {
+        return ((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) && whiteUsername.equals(clientUsername) &&
+                !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
+                !chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) |
+                (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
+                        Objects.equals(blackUsername, clientUsername)
+                        && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
+                        && !chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) && !gameData.resigned();
+    }
+
     public void makeMove(MakeMoveCommand makeMoveCommand, Session session) throws IOException {
         try {
             int gameId = makeMoveCommand.getGameID();
@@ -125,32 +134,19 @@ public class WebSocketServer {
             String blackUsername = gameData.blackUsername();
             String clientUsername = sqlAuthDAO.getAuth(authToken).username();
             ChessGame chessGame = gameData.game();
-            if ((Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
-                    ChessGame.TeamColor.WHITE) && Objects.equals(clientUsername, blackUsername)) |
-                    (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
-                            ChessGame.TeamColor.BLACK) && Objects.equals(clientUsername, whiteUsername))) {
+            if (checkPlayer(chessGame, chessMove, clientUsername, blackUsername, whiteUsername)) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, not your player\n");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if ((!sqlGameDAO.getGame(gameId).game().validMoves(chessMove.getStartPosition()).contains(chessMove)
-                    && !((Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
-                    ChessGame.TeamColor.WHITE) && Objects.equals(clientUsername, blackUsername)) |
-                    (Objects.equals(chessGame.getBoard().getPiece(chessMove.getStartPosition()).getTeamColor(),
-                            ChessGame.TeamColor.BLACK) && Objects.equals(clientUsername, whiteUsername))))) {
+            } else if (checkMove(chessGame, chessMove, clientUsername, blackUsername, whiteUsername)) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move\n");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (sqlGameDAO.getGame(gameId).resigned()) {
+            } else if (gameData.resigned()) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, game over\n");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
-            } else if (((chessGame.getTeamTurn().equals(ChessGame.TeamColor.BLACK) && whiteUsername.equals(clientUsername) &&
-                    !chessGame.isInCheckmate(ChessGame.TeamColor.WHITE) &&
-                    !chessGame.isInStalemate(ChessGame.TeamColor.WHITE)) |
-                    (chessGame.getTeamTurn().equals(ChessGame.TeamColor.WHITE) &&
-                            Objects.equals(blackUsername, clientUsername)
-                            && !chessGame.isInCheckmate(ChessGame.TeamColor.BLACK)
-                            && !chessGame.isInStalemate(ChessGame.TeamColor.BLACK))) && !gameData.resigned()) {
+            } else if (checkTurn(chessGame, gameData, clientUsername, blackUsername, whiteUsername)) {
                 ErrorMessage errorMessage = new ErrorMessage(ServerMessage.ServerMessageType.ERROR,
                         "Error: Invalid move, not your turn\n");
                 session.getRemote().sendString(new Gson().toJson(errorMessage));
